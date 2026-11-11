@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LLC Spend">
+  <title>LLC Spend</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); background: #f1f5f9; color: #0f172a; }
+    .wrap { max-width: 500px; margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+    .topbar h1 { font-size: 20px; margin: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .badge { background: #1e293b; color: #fff; padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; }
+    .btn-gear { background: #e2e8f0; color: #334155; border: none; border-radius: 99px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .notify-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+    .notify-title { font-size: 14px; font-weight: 600; color: #0f172a; }
+    .notify-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: 0.2s; border-radius: 28px; }
+    .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: #fff; transition: 0.2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    input:checked + .slider { background-color: #16a34a; }
+    input:checked + .slider:before { transform: translateX(20px); }
+    .actions-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .btn-action { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; }
+    .btn-scan { background: #2563eb; color: #fff; border: none; }
+    .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.07); }
+    .dup-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; }
+    .field textarea { min-height: 68px; resize: vertical; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .receipt-link { display: inline-block; margin-bottom: 14px; font-size: 14px; color: #2563eb; text-decoration: none; font-weight: 600; }
+    .card-btns { display: flex; gap: 10px; margin-top: 6px; }
+    .btn-verify { flex: 2; padding: 14px; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-ignore { flex: 1; padding: 14px; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .status-banner { display: none; padding: 12px; border-radius: 10px; background: #dbeafe; color: #1e40af; font-weight: 600; font-size: 14px; margin-bottom: 14px; text-align: center; }
+    .empty { text-align: center; padding: 42px 20px; background: #fff; border-radius: 14px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>Manifest Kinetics</h1>
+      <div class="topbar-right">
+        <span id="queueBadge" class="badge">Setup</span>
+        <button class="btn-gear" onclick="openSetup()">API Key</button>
+      </div>
+    </div>
+
+    <div id="statusBanner" class="status-banner"></div>
+
+    <div id="setupCard" class="card" style="display:none;">
+      <form onsubmit="saveSetup(event)">
+        <div class="field">
+          <label>Apps Script /exec Endpoint URL</label>
+          <input type="url" id="cfgUrl" name="username" autocomplete="username" placeholder="https://script.google.com/macros/s/.../exec" required>
+        </div>
+        <div class="field">
+          <label>API_SECRET Passkey</label>
+          <input type="password" id="cfgSecret" name="password" autocomplete="current-password" placeholder="Paste API_SECRET from Script Properties" required>
+        </div>
+        <button type="submit" class="btn-verify" style="width:100%;">Save &amp; Connect Ledger</button>
+      </form>
+    </div>
+
+    <div id="appMain" style="display:none;">
+      <div class="notify-bar">
+        <div>
+          <div class="notify-title">Phone Push Alerts</div>
+          <div id="notifySub" class="notify-sub">Checking alert setting...</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notifyToggle" onchange="toggleNotifications(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="actions-bar">
+        <label class="btn-action btn-scan">
+          + Scan Screenshot / PDF
+          <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(this)">
+        </label>
+        <button class="btn-action" onclick="loadQueue()">Refresh</button>
+      </div>
+
+      <div id="cardsContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    var CATEGORIES = [];
+    var CARD_OPTIONS = [
+      "Signify Mastercard 8805",
+      "Personal Visa 4463",
+      "Other / Checking / ACH"
+    ];
+
+    function callApi(action, extra) {
+      var url = (localStorage.getItem("MK_API_URL") || "").trim();
+      var token = (localStorage.getItem("MK_API_SECRET") || "").trim();
+      var payload = Object.assign({ token: token, action: action }, extra || {});
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res || !res.ok) {
+          throw new Error((res && res.error) || "API error");
+        }
+        return res.data;
+      });
+    }
+
+    function showStatus(msg) {
+      var b = document.getElementById("statusBanner");
+      if (!msg) { b.style.display = "none"; return; }
+      b.textContent = msg;
+      b.style.display = "block";
+    }
+
+    function openSetup() {
+      document.getElementById("cfgUrl").value = localStorage.getItem("MK_API_URL") || "";
+      document.getElementById("cfgSecret").value = localStorage.getItem("MK_API_SECRET") || "";
+      document.getElementById("setupCard").style.display = "block";
+      document.getElementById("appMain").style.display = "none";
+    }
+
+    function saveSetup(ev) {
+      ev.preventDefault();
+      localStorage.setItem("MK_API_URL", document.getElementById("cfgUrl").value.trim());
+      localStorage.setItem("MK_API_SECRET", document.getElementById("cfgSecret").value.trim());
+      document.getElementById("setupCard").style.display = "none";
+      document.getElementById("appMain").style.display = "block";
+      initApp();
+    }
+
+    function updateNotifyLabel(enabled, hasPush) {
+      var toggle = document.getElementById("notifyToggle");
+      var sub = document.getElementById("notifySub");
+      toggle.checked = Boolean(enabled);
+      if (!enabled) {
+        sub.textContent = "Muted (no phone buzz on new orders)";
+      } else if (hasPush === false) {
+        sub.textContent = "Enabled (add BARK_KEY in Script Properties)";
+      } else {
+        sub.textContent = "Active (buzzes phone when orders arrive)";
+      }
+    }
+
+    function toggleNotifications(enabled) {
+      var toggle = document.getElementById("notifyToggle");
+      toggle.disabled = true;
+      updateNotifyLabel(enabled, true);
+      callApi("toggleNotify", { enabled: enabled })
+        .then(function(res) {
+          toggle.disabled = false;
+          updateNotifyLabel(res.enabled, res.hasPushConfig !== false);
+        })
+        .catch(function(err) {
+          toggle.disabled = false;
+          toggle.checked = !enabled;
+          updateNotifyLabel(!enabled, true);
+          showStatus("Toggle error: " + err.message);
+        });
+    }
+
+    function initApp() {
+      if (!localStorage.getItem("MK_API_URL") || !localStorage.getItem("MK_API_SECRET")) {
+        openSetup();
+        return;
+      }
+      document.getElementById("setupCard").style.display = "none";
+      document.getElementById("appMain").style.display = "block";
+      showStatus("Loading pending purchases...");
+      callApi("boot")
+        .then(function(data) {
+          CATEGORIES = data.categories || [];
+          if (data.cardOptions && data.cardOptions.length) CARD_OPTIONS = data.cardOptions;
+          updateNotifyLabel(data.notificationsEnabled, data.hasPushConfig !== false);
+          showStatus("");
+          renderItems(data.items || []);
+        })
+        .catch(function(err) {
+          showStatus("Connection error: " + err.message);
+          if (String(err.message).indexOf("API_SECRET") !== -1) openSetup();
+        });
+    }
+
+    function loadQueue() {
+      showStatus("Refreshing...");
+      callApi("list")
+        .then(function(items) { showStatus(""); renderItems(items || []); })
+        .catch(function(err) { showStatus("Error: " + err.message); });
+    }
+
+    function renderItems(items) {
+      document.getElementById("queueBadge").textContent = items.length + " Pending";
+      var container = document.getElementById("cardsContainer");
+      container.innerHTML = "";
+      if (items.length === 0) {
+        container.innerHTML = "<div class='empty'><h3>All Caught Up</h3><p>Every LLC purchase is verified and categorized for Schedule C.</p></div>";
+        return;
+      }
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var card = document.createElement("div");
+        card.className = "card";
+        card.id = "card-" + it.id;
+
+        var cardOpts = "";
+        for (var p = 0; p < CARD_OPTIONS.length; p++) {
+          var cSel = (CARD_OPTIONS[p] === it.paymentCard) ? " selected" : "";
+          cardOpts += "<option value=\"" + escapeAttr(CARD_OPTIONS[p]) + "\"" + cSel + ">" + escapeHtml(CARD_OPTIONS[p]) + "</option>";
+        }
+        var catOpts = "";
+        for (var c = 0; c < CATEGORIES.length; c++) {
+          var sel = (CATEGORIES[c] === it.category) ? " selected" : "";
+          catOpts += "<option value=\"" + escapeAttr(CATEGORIES[c]) + "\"" + sel + ">" + escapeHtml(CATEGORIES[c]) + "</option>";
+        }
+        var dupHtml = it.duplicateAlert
+          ? "<div class='dup-banner'>Duplicate Alert: " + escapeHtml(it.duplicateAlert) + "</div>"
+          : "";
+        var receiptHtml = it.receiptUrl
+          ? "<a class='receipt-link' href='" + escapeAttr(it.receiptUrl) + "' target='_blank' rel='noopener'>View Archived Receipt in Drive &rarr;</a>"
+          : "";
+
+        card.innerHTML =
+          dupHtml + receiptHtml +
+          "<div class='field'><label>Vendor</label><input type='text' id='vendor-" + it.id + "' value=\"" + escapeAttr(it.vendor) + "\"></div>" +
+          "<div class='row2'>" +
+            "<div class='field'><label>Total Cost (USD)</label><input type='number' step='0.01' id='cost-" + it.id + "' value=\"" + escapeAttr(it.totalCost) + "\"></div>" +
+            "<div class='field'><label>Purchase Date & Time</label><input type='text' id='date-" + it.id + "' value=\"" + escapeAttr(it.purchaseTimestamp) + "\"></div>" +
+          "</div>" +
+          "<div class='field'><label>Payment Card Used</label><select id='paycard-" + it.id + "'>" + cardOpts + "</select></div>" +
+          "<div class='row2'>" +
+            "<div class='field'><label>Order Number</label><input type='text' id='order-" + it.id + "' value=\"" + escapeAttr(it.orderNumber) + "\"></div>" +
+            "<div class='field'><label>Anticipated Delivery</label><input type='text' id='deliv-" + it.id + "' value=\"" + escapeAttr(it.anticipatedDelivery) + "\"></div>" +
+          "</div>" +
+          "<div class='field'><label>Product Description</label><input type='text' id='desc-" + it.id + "' value=\"" + escapeAttr(it.productDescription) + "\"></div>" +
+          "<div class='field'><label>IRS Schedule C Category</label><select id='cat-" + it.id + "'>" + catOpts + "</select></div>" +
+          "<div class='field'><label>Tax Notes / Business Purpose</label><textarea id='notes-" + it.id + "' placeholder='e.g. Aluminum stock for prototype assembly'>" + escapeHtml(it.taxNotes) + "</textarea></div>" +
+          "<div class='card-btns'>" +
+            "<button class='btn-verify' onclick=\"submitCard('" + it.id + "', 'verify')\">Verify & Save</button>" +
+            "<button class='btn-ignore' onclick=\"submitCard('" + it.id + "', 'ignore')\">Ignore</button>" +
+          "</div>";
+        container.appendChild(card);
+      }
+    }
+
+    function submitCard(id, action) {
+      var payload = {
+        id: id,
+        action: action,
+        vendor: document.getElementById("vendor-" + id).value,
+        totalCost: document.getElementById("cost-" + id).value,
+        paymentCard: document.getElementById("paycard-" + id).value,
+        orderNumber: document.getElementById("order-" + id).value,
+        anticipatedDelivery: document.getElementById("deliv-" + id).value,
+        purchaseTimestamp: document.getElementById("date-" + id).value,
+        productDescription: document.getElementById("desc-" + id).value,
+        category: document.getElementById("cat-" + id).value,
+        taxNotes: document.getElementById("notes-" + id).value
+      };
+      var cardEl = document.getElementById("card-" + id);
+      cardEl.style.opacity = "0.5";
+      cardEl.style.pointerEvents = "none";
+      showStatus(action === "ignore" ? "Ignoring item..." : "Saving verified expense...");
+      callApi("verify", { payload: payload })
+        .then(function(items) { showStatus(""); renderItems(items || []); })
+        .catch(function(err) {
+          cardEl.style.opacity = "1";
+          cardEl.style.pointerEvents = "auto";
+          showStatus("Error: " + err.message);
+        });
+    }
+
+    function handleUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      var file = input.files[0];
+      showStatus("Reading receipt with Gemini AI (takes ~4 seconds)...");
+      if (file.type.indexOf("image/") === 0) {
+        compressAndSendImage(file);
+      } else {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          sendUploadToServer(e.target.result.split(",")[1], file.type || "application/pdf", file.name);
+        };
+        reader.readAsDataURL(file);
+      }
+      input.value = "";
+    }
+
+    function compressAndSendImage(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var maxDim = 1600, w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          var canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          var dot = file.name.lastIndexOf(".");
+          var base = dot > 0 ? file.name.substring(0, dot) : file.name;
+          sendUploadToServer(dataUrl.split(",")[1], "image/jpeg", base + ".jpg");
+        };
+        img.onerror = function() {
+          sendUploadToServer(e.target.result.split(",")[1], file.type || "image/jpeg", file.name);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function sendUploadToServer(base64, mimeType, fileName) {
+      callApi("upload", { base64Data: base64, mimeType: mimeType, fileName: fileName })
+        .then(function(items) { showStatus(""); renderItems(items || []); })
+        .catch(function(err) { showStatus("Upload failed: " + err.message); });
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>

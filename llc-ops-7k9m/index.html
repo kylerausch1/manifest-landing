@@ -28,9 +28,8 @@
     .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: #fff; transition: 0.2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     input:checked + .slider { background-color: #16a34a; }
     input:checked + .slider:before { transform: translateX(20px); }
-    .seg-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
-    .seg-btn { border: none; background: transparent; color: #475569; font-size: 14px; font-weight: 700; padding: 10px 8px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .seg-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.12); }
+    .seg-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+    .seg-btn { border: none; background: transparent; color: #475569; font-size: 13px; font-weight: 700; padding: 9px 4px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }    .seg-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.12); }
     .tab-pill { background: #cbd5e1; color: #0f172a; border-radius: 99px; padding: 1px 7px; font-size: 12px; font-weight: 700; }
     .seg-btn.active .tab-pill.warn { background: #dbeafe; color: #1d4ed8; }
     .actions-bar { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -66,6 +65,25 @@
     .exec-hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #64748b; margin-top: 4px; word-break: break-all; }
     .chk-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px; }
     .chk-row input { width: 18px; height: 18px; }
+    .ops-due { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #f1f5f9; color: #334155; }
+    .ops-due.soon { background: #fef3c7; color: #92400e; }
+    .ops-due.urgent { background: #fee2e2; color: #b91c1c; }
+    .ops-mode { font-size: 12px; font-weight: 600; padding: 7px 10px; border-radius: 8px; margin-bottom: 10px; line-height: 1.35; }
+    .ops-mode.armed { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .ops-mode.manual { background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; }
+    .ops-links { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .ops-link-btn { display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-size: 13px; font-weight: 700; padding: 8px 11px; border-radius: 8px; text-decoration: none; }
+    .ops-proof-lbl { display: block; text-align: center; padding: 9px 10px; border: 1px dashed #94a3b8; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; background: #f8fafc; cursor: pointer; margin-bottom: 10px; }
+    .prop-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+    .prop-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid #dbeafe; font-size: 13px; line-height: 1.4; }
+    .prop-item:last-child { border-bottom: none; }
+    .prop-item input { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; }
+    .idx-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px 12px; margin-bottom: 10px; background: #f8fafc; }
+    .idx-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 5px 0 6px; font-size: 11px; font-weight: 700; }
+    .idx-tag { padding: 2px 7px; border-radius: 5px; background: #e2e8f0; color: #334155; }
+    .idx-tag.act { background: #dcfce7; color: #166534; }
+    .idx-tag.cond { background: #fef3c7; color: #92400e; }
+    .idx-tag.auto { background: #dbeafe; color: #1e40af; }
   </style>
 </head>
 <body>
@@ -112,6 +130,9 @@
         </button>
         <button id="tabBtnGov" class="seg-btn" onclick="switchTab('gov')">
           Governance <span id="pillGov" class="tab-pill">0</span>
+        </button>
+        <button id="tabBtnOps" class="seg-btn" onclick="switchTab('ops')">
+          Ops Tasks <span id="pillOps" class="tab-pill">0</span>
         </button>
       </div>
 
@@ -188,6 +209,22 @@
 
         <div id="govPendingContainer"></div>
         <div id="govExecutedSection"></div>
+        <div id="paneOps" style="display:none;">
+        <div class="actions-bar">
+          <button id="btnToggleIdx" class="btn-action" onclick="toggleIndexDrawer()">Index (0)</button>
+          <button id="btnAiAudit" class="btn-action btn-scan" onclick="runAiAuditNow()">AI Audit</button>
+          <button class="btn-action" style="flex:0.75;" onclick="loadOps(true)">Refresh</button>
+        </div>
+
+        <div id="indexDrawer" class="card" style="display:none;">
+          <div class="gov-title" style="margin-bottom:4px;">Compliance Index &amp; Alert Settings</div>
+          <div class="notify-sub" style="margin-bottom:12px;">Per-item nature, cost, advance alert days, instructions, and email auto-resolution status.</div>
+          <div id="indexListContainer"></div>
+        </div>
+
+        <div id="opsOpenContainer"></div>
+        <div id="opsResolvedSection"></div>
+      </div>
       </div>
     </div>
   </div>
@@ -202,76 +239,9 @@
     var activeTab = "purchases";
     var pendingPurchaseCount = 0;
     var pendingGovCount = 0;
-
-    function fmtUsd(val) {
-      var n = Number(val || 0);
-      var sign = n < 0 ? "-" : "";
-      var abs = Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return sign + "USD " + abs;
-    }
-
-    function todayIso() {
-      var d = new Date();
-      var m = String(d.getMonth() + 1).padStart(2, "0");
-      var day = String(d.getDate()).padStart(2, "0");
-      return d.getFullYear() + "-" + m + "-" + day;
-    }
-
-    function callApi(action, extra) {
-      var url = (localStorage.getItem("MK_API_URL") || "").trim();
-      var token = (localStorage.getItem("MK_API_SECRET") || "").trim();
-      var payload = Object.assign({ token: token, action: action }, extra || {});
-      return fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(res) {
-        if (!res || !res.ok) {
-          throw new Error((res && res.error) || "API error");
-        }
-        return res.data !== undefined ? res.data : res;
-      });
-    }
-
-    function showStatus(msg) {
-      var b = document.getElementById("statusBanner");
-      if (!msg) { b.style.display = "none"; return; }
-      b.textContent = msg;
-      b.style.display = "block";
-    }
-
-    function refreshTopBadges() {
-      var total = pendingPurchaseCount + pendingGovCount;
-      var qb = document.getElementById("queueBadge");
-      qb.textContent = total === 0 ? "All Clear" : (total + " Pending");
-      qb.className = total === 0 ? "badge ok" : "badge";
-
-      var pPill = document.getElementById("pillPurchases");
-      pPill.textContent = String(pendingPurchaseCount);
-      pPill.className = pendingPurchaseCount > 0 ? "tab-pill warn" : "tab-pill";
-
-      var gPill = document.getElementById("pillGov");
-      gPill.textContent = String(pendingGovCount);
-      gPill.className = pendingGovCount > 0 ? "tab-pill warn" : "tab-pill";
-    }
-
-    function switchTab(tab) {
-      activeTab = tab === "gov" ? "gov" : "purchases";
-      document.getElementById("tabBtnPurchases").className = activeTab === "purchases" ? "seg-btn active" : "seg-btn";
-      document.getElementById("tabBtnGov").className = activeTab === "gov" ? "seg-btn active" : "seg-btn";
-      document.getElementById("panePurchases").style.display = activeTab === "purchases" ? "block" : "none";
-      document.getElementById("paneGov").style.display = activeTab === "gov" ? "block" : "none";
-    }
-
-    function detectInitialTab() {
-      var h = String(window.location.hash || "").toLowerCase();
-      var s = String(window.location.search || "").toLowerCase();
-      if (h.indexOf("gov") !== -1 || s.indexOf("tab=gov") !== -1) {
-        switchTab("gov");
-      }
-    }
+    var pendingOpsCount = 0;
+    var cachedOpsIndex = [];
+    var stagedOpsFiles = {};
 
     function openSetup() {
       document.getElementById("cfgUrl").value = localStorage.getItem("MK_API_URL") || "";
@@ -319,6 +289,47 @@
         });
     }
 
+function refreshTopBadges() {
+      var total = pendingPurchaseCount + pendingGovCount + pendingOpsCount;
+      var qb = document.getElementById("queueBadge");
+      qb.textContent = total === 0 ? "All Clear" : (total + " Pending");
+      qb.className = total === 0 ? "badge ok" : "badge";
+
+      var pPill = document.getElementById("pillPurchases");
+      pPill.textContent = String(pendingPurchaseCount);
+      pPill.className = pendingPurchaseCount > 0 ? "tab-pill warn" : "tab-pill";
+
+      var gPill = document.getElementById("pillGov");
+      gPill.textContent = String(pendingGovCount);
+      gPill.className = pendingGovCount > 0 ? "tab-pill warn" : "tab-pill";
+
+      var oPill = document.getElementById("pillOps");
+      if (oPill) {
+        oPill.textContent = String(pendingOpsCount);
+        oPill.className = pendingOpsCount > 0 ? "tab-pill warn" : "tab-pill";
+      }
+    }
+
+    function switchTab(tab) {
+      activeTab = (tab === "gov" || tab === "ops") ? tab : "purchases";
+      document.getElementById("tabBtnPurchases").className = activeTab === "purchases" ? "seg-btn active" : "seg-btn";
+      document.getElementById("tabBtnGov").className = activeTab === "gov" ? "seg-btn active" : "seg-btn";
+      document.getElementById("tabBtnOps").className = activeTab === "ops" ? "seg-btn active" : "seg-btn";
+      document.getElementById("panePurchases").style.display = activeTab === "purchases" ? "block" : "none";
+      document.getElementById("paneGov").style.display = activeTab === "gov" ? "block" : "none";
+      document.getElementById("paneOps").style.display = activeTab === "ops" ? "block" : "none";
+    }
+
+    function detectInitialTab() {
+      var h = String(window.location.hash || "").toLowerCase();
+      var s = String(window.location.search || "").toLowerCase();
+      if (h.indexOf("ops") !== -1 || s.indexOf("tab=ops") !== -1) {
+        switchTab("ops");
+      } else if (h.indexOf("gov") !== -1 || s.indexOf("tab=gov") !== -1) {
+        switchTab("gov");
+      }
+    }
+    window.addEventListener("hashchange", detectInitialTab);
     function initApp() {
       detectInitialTab();
       if (!localStorage.getItem("MK_API_URL") || !localStorage.getItem("MK_API_SECRET")) {
@@ -330,17 +341,20 @@
       document.getElementById("newGovDate").value = todayIso();
       showStatus("Syncing Manifest Ops queues...");
 
-      Promise.all([callApi("boot"), callApi("govList")])
+      Promise.all([callApi("boot"), callApi("govList"), callApi("opsList")])
         .then(function(results) {
           var bootData = results[0] || {};
           var govSnap = results[1] || {};
+          var opsSnap = results[2] || {};
           CATEGORIES = bootData.categories || [];
           if (bootData.cardOptions && bootData.cardOptions.length) CARD_OPTIONS = bootData.cardOptions;
           updateNotifyLabel(bootData.notificationsEnabled, bootData.hasPushConfig !== false);
           renderItems(bootData.items || []);
           renderGov(govSnap);
-          if (pendingPurchaseCount === 0 && pendingGovCount > 0 && !window.location.hash) {
-            switchTab("gov");
+          renderOps(opsSnap);
+          if (!window.location.hash && !window.location.search) {
+            if (pendingPurchaseCount === 0 && pendingGovCount > 0) switchTab("gov");
+            else if (pendingPurchaseCount === 0 && pendingOpsCount > 0) switchTab("ops");
           }
           showStatus("");
         })
@@ -349,7 +363,6 @@
           if (String(err.message).indexOf("API_SECRET") !== -1) openSetup();
         });
     }
-
     function loadQueue() {
       showStatus("Refreshing purchases...");
       callApi("list")
@@ -655,7 +668,335 @@
     function escapeAttr(str) {
       return escapeHtml(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
+function loadOps(checkDeadlinesFirst) {
+      showStatus(checkDeadlinesFirst ? "Checking deadlines & refreshing Ops Tasks..." : "Refreshing Ops Tasks...");
+      callApi(checkDeadlinesFirst ? "opsCheckDeadlines" : "opsList")
+        .then(function(snap) { showStatus(""); renderOps(snap || {}); })
+        .catch(function(err) { showStatus("Ops error: " + err.message); });
+    }
 
+    function toggleIndexDrawer() {
+      var dr = document.getElementById("indexDrawer");
+      dr.style.display = dr.style.display === "none" ? "block" : "none";
+    }
+
+    function formatDueLabel(deadline, daysUntil) {
+      if (daysUntil === null || daysUntil === undefined || isNaN(daysUntil)) {
+        return { text: deadline || "TBD", cls: "ops-due" };
+      }
+      var d = Number(daysUntil);
+      if (d < 0) return { text: "OVERDUE " + Math.abs(d) + "d • " + deadline, cls: "ops-due urgent" };
+      if (d === 0) return { text: "DUE TODAY • " + deadline, cls: "ops-due urgent" };
+      if (d <= 7) return { text: "Due in " + d + "d • " + deadline, cls: "ops-due urgent" };
+      if (d <= 21) return { text: "Due in " + d + "d • " + deadline, cls: "ops-due soon" };
+      return { text: "Due in " + d + "d • " + deadline, cls: "ops-due" };
+    }
+
+    function renderOps(snap) {
+      var openTasks = (snap && snap.openTasks) ? snap.openTasks : [];
+      var resolved = (snap && snap.recentResolved) ? snap.recentResolved : [];
+      cachedOpsIndex = (snap && snap.indexItems) ? snap.indexItems : [];
+
+      pendingOpsCount = openTasks.length;
+      refreshTopBadges();
+
+      var idxBtn = document.getElementById("btnToggleIdx");
+      if (idxBtn) idxBtn.textContent = "Index (" + cachedOpsIndex.length + ")";
+      renderComplianceIndex(cachedOpsIndex);
+
+      var openWrap = document.getElementById("opsOpenContainer");
+      openWrap.innerHTML = "";
+      if (openTasks.length === 0) {
+        openWrap.innerHTML = "<div class='empty'><h3>Ops Tasks Caught Up</h3><p>No statutory filings or compliance tasks are currently due.</p></div>";
+      } else {
+        for (var i = 0; i < openTasks.length; i++) {
+          var t = openTasks[i];
+          var due = formatDueLabel(t.deadline, t.daysUntil);
+          var modeHtml = t.autoArmed
+            ? "<div class='ops-mode armed'><strong>Auto-Resolve Armed:</strong> Automatically resolves on matching government or payment confirmation email (or mark resolved below).</div>"
+            : "<div class='ops-mode manual'><strong>Manual Resolution:</strong> Complete the steps below, then tap Mark Resolved.</div>";
+
+          var linksArr = Array.isArray(t.links) ? t.links : [];
+          var linksHtml = "";
+          var auditMeta = null;
+          if (linksArr.length > 0) {
+            var btns = "";
+            for (var l = 0; l < linksArr.length; l++) {
+              if (linksArr[l].auditMeta) auditMeta = linksArr[l].auditMeta;
+              if (linksArr[l].url) {
+                btns += "<a class='ops-link-btn' href='" + escapeAttr(linksArr[l].url) + "' target='_blank' rel='noopener'>" +
+                  escapeHtml(linksArr[l].label || "Open Link") + " &nearr;</a>";
+              }
+            }
+            if (btns) linksHtml = "<div class='ops-links'>" + btns + "</div>";
+          }
+
+          var proposalsHtml = "";
+          if (auditMeta && Array.isArray(auditMeta.proposals) && auditMeta.proposals.length > 0) {
+            var pItems = "";
+            for (var p = 0; p < auditMeta.proposals.length; p++) {
+              var pr = auditMeta.proposals[p];
+              pItems +=
+                "<label class='prop-item'>" +
+                  "<input type='checkbox' class='prop-chk-" + escapeAttr(t.taskId) + "' value='" + p + "' checked>" +
+                  "<div><strong>[" + escapeHtml(pr.proposalType) + " " + escapeHtml(pr.targetIndexId) + "] " + escapeHtml(pr.title) + "</strong><br>" +
+                  "<span style='color:#475569;'>" + escapeHtml(pr.state + " • " + pr.cadence + " • Next: " + pr.nextDeadline + " • " + fmtUsd(pr.cost)) + "</span><br>" +
+                  "<em>" + escapeHtml(pr.rationale) + "</em></div>" +
+                "</label>";
+            }
+            proposalsHtml =
+              "<div class='prop-box'>" +
+                "<div style='font-size:12px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:4px;'>Proposed Compliance Index Updates</div>" +
+                pItems +
+                "<button class='btn-verify' style='width:100%;margin-top:8px;' onclick=\"applyAuditTask('" + escapeAttr(t.taskId) + "')\">Apply Selected Updates &amp; Resolve</button>" +
+              "</div>";
+          }
+
+          var card = document.createElement("div");
+          card.className = "card";
+          card.id = "opscard-" + t.taskId;
+          card.innerHTML =
+            "<div class='gov-head'>" +
+              "<span class='gov-id'>" + escapeHtml(t.taskId) + " &bull; " + escapeHtml(t.indexId) + "</span>" +
+              "<span class='" + due.cls + "'>" + escapeHtml(due.text) + "</span>" +
+            "</div>" +
+            "<div class='gov-title'>" + escapeHtml(t.title) + "</div>" +
+            "<div class='gov-cite'>" + escapeHtml(t.nature) + (t.cost > 0 ? (" &bull; <strong>Est. Cost: " + escapeHtml(fmtUsd(t.cost)) + "</strong>") : "") + "</div>" +
+            modeHtml +
+            linksHtml +
+            "<div class='gov-body'>" + escapeHtml(t.instructions) + "</div>" +
+            proposalsHtml +
+            "<div class='field'>" +
+              "<label>Confirmation # / Resolution Note</label>" +
+              "<input type='text' id='opsnote-" + escapeAttr(t.taskId) + "' placeholder='e.g. Web Pay Conf # or filed date'>" +
+            "</div>" +
+            "<label class='ops-proof-lbl'>" +
+              "<span id='opsfilelbl-" + escapeAttr(t.taskId) + "'>+ Attach Confirmation PDF / Screenshot (Optional)</span>" +
+              "<input type='file' accept='image/*,application/pdf' style='display:none' onchange=\"stageOpsProof('" + escapeAttr(t.taskId) + "', this)\">" +
+            "</label>" +
+            "<div class='card-btns'>" +
+              "<button class='btn-verify' onclick=\"resolveOpsCard('" + escapeAttr(t.taskId) + "', false)\">Mark Resolved</button>" +
+              "<button class='btn-ignore' onclick=\"resolveOpsCard('" + escapeAttr(t.taskId) + "', true)\">Dismiss</button>" +
+            "</div>";
+          openWrap.appendChild(card);
+        }
+      }
+
+      var resWrap = document.getElementById("opsResolvedSection");
+      resWrap.innerHTML = "";
+      if (resolved.length > 0) {
+        var rHtml = "<div class='sec-hdr'>Recent Resolved Ops Tasks</div>";
+        for (var j = 0; j < resolved.length; j++) {
+          var rv = resolved[j];
+          var proofLink = rv.proofUrl
+            ? "<a class='receipt-link' style='margin:6px 0 0;' href='" + escapeAttr(rv.proofUrl) + "' target='_blank' rel='noopener'>Open Archived Proof in Drive &rarr;</a>"
+            : "";
+          rHtml +=
+            "<div class='exec-item'>" +
+              "<div class='gov-head' style='margin-bottom:4px;'>" +
+                "<span class='gov-id' style='background:#f0fdf4;color:#15803d;border-color:#bbf7d0;'>" + escapeHtml(rv.taskId) + " &bull; Resolved</span>" +
+                "<span class='gov-meta'>" + escapeHtml(rv.resolvedMethod || "Resolved") + "</span>" +
+              "</div>" +
+              "<div style='font-size:14px;font-weight:700;color:#0f172a;'>" + escapeHtml(rv.title) + "</div>" +
+              (rv.confirmationNotes ? "<div class='notify-sub' style='margin-top:4px;'>" + escapeHtml(rv.confirmationNotes) + "</div>" : "") +
+              proofLink +
+            "</div>";
+        }
+        resWrap.innerHTML = rHtml;
+      }
+    }
+
+    function renderComplianceIndex(items) {
+      var wrap = document.getElementById("indexListContainer");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var stCls = it.state === "Active" ? "idx-tag act" : (it.state === "Conditional" ? "idx-tag cond" : "idx-tag");
+        var autoBadge = it.autoArmed
+          ? "<span class='idx-tag auto'>Auto-Resolve: Armed</span>"
+          : "<span class='idx-tag'>Auto-Resolve: Manual Only</span>";
+
+        var stateOpts = ["Active", "Conditional", "Retired"].map(function(s) {
+          return "<option value='" + s + "'" + (it.state === s ? " selected" : "") + ">" + s + "</option>";
+        }).join("");
+        var cadOpts = ["One-Time", "Quarterly", "Annual", "Biennial"].map(function(c) {
+          return "<option value='" + c + "'" + (it.cadence === c ? " selected" : "") + ">" + c + "</option>";
+        }).join("");
+
+        var div = document.createElement("div");
+        div.className = "idx-item";
+        div.innerHTML =
+          "<div class='gov-head' style='margin-bottom:2px;'>" +
+            "<strong style='font-size:13px;'>" + escapeHtml(it.indexId + " — " + it.title) + "</strong>" +
+            "<button class='btn-gear' onclick=\"toggleIdxEdit('" + escapeAttr(it.indexId) + "')\">Settings</button>" +
+          "</div>" +
+          "<div class='idx-badges'>" +
+            "<span class='" + stCls + "'>" + escapeHtml(it.state) + "</span>" +
+            "<span class='idx-tag'>" + escapeHtml(it.cadence + " • Next: " + it.nextDeadline) + "</span>" +
+            "<span class='idx-tag'>" + escapeHtml(fmtUsd(it.cost) + " • Alert -" + it.advanceAlertDays + "d") + "</span>" +
+            autoBadge +
+          "</div>" +
+          "<div style='font-size:12px;color:#475569;'>" + escapeHtml(it.nature) + "</div>" +
+          "<div id='idxedit-" + escapeAttr(it.indexId) + "' style='display:none;margin-top:10px;padding-top:10px;border-top:1px solid #cbd5e1;'>" +
+            "<div class='row2'>" +
+              "<div class='field'><label>State</label><select id='idxst-" + escapeAttr(it.indexId) + "'>" + stateOpts + "</select></div>" +
+              "<div class='field'><label>Cadence</label><select id='idxcad-" + escapeAttr(it.indexId) + "'>" + cadOpts + "</select></div>" +
+            "</div>" +
+            "<div class='row2'>" +
+              "<div class='field'><label>Next Deadline (YYYY-MM-DD)</label><input type='text' id='idxdue-" + escapeAttr(it.indexId) + "' value=\"" + escapeAttr(it.nextDeadline) + "\"></div>" +
+              "<div class='field'><label>Est. Cost (USD)</label><input type='number' step='0.01' id='idxcost-" + escapeAttr(it.indexId) + "' value=\"" + escapeAttr(Number(it.cost || 0).toFixed(2)) + "\"></div>" +
+            "</div>" +
+            "<div class='field'><label>Advance Alert (Days Before Deadline)</label><input type='number' id='idxadv-" + escapeAttr(it.indexId) + "' value=\"" + escapeAttr(it.advanceAlertDays) + "\"></div>" +
+            "<div class='field'><label>Nature of Item</label><input type='text' id='idxnat-" + escapeAttr(it.indexId) + "' value=\"" + escapeAttr(it.nature) + "\"></div>" +
+            "<div class='field'><label>Resolution Instructions</label><textarea id='idxins-" + escapeAttr(it.indexId) + "'>" + escapeHtml(it.instructions) + "</textarea></div>" +
+            "<label class='chk-row'><input type='checkbox' id='idxauto-" + escapeAttr(it.indexId) + "'" + (it.autoArmed ? " checked" : "") + "> Arm Email Auto-Resolution</label>" +
+            "<div class='field'><label>Confirmation Email Match Rule</label><textarea id='idxrule-" + escapeAttr(it.indexId) + "' style='min-height:52px;'>" + escapeHtml(it.autoMatchRule) + "</textarea></div>" +
+            "<button class='btn-verify' style='width:100%;padding:11px;' onclick=\"saveIdxSettings('" + escapeAttr(it.indexId) + "')\">Save Index Settings</button>" +
+          "</div>";
+        wrap.appendChild(div);
+      }
+    }
+
+    function toggleIdxEdit(indexId) {
+      var el = document.getElementById("idxedit-" + indexId);
+      if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+    }
+
+    function saveIdxSettings(indexId) {
+      var payload = {
+        indexId: indexId,
+        state: document.getElementById("idxst-" + indexId).value,
+        cadence: document.getElementById("idxcad-" + indexId).value,
+        nextDeadline: document.getElementById("idxdue-" + indexId).value.trim(),
+        cost: parseFloat(document.getElementById("idxcost-" + indexId).value || "0") || 0,
+        advanceAlertDays: parseInt(document.getElementById("idxadv-" + indexId).value || "0", 10) || 0,
+        nature: document.getElementById("idxnat-" + indexId).value.trim(),
+        instructions: document.getElementById("idxins-" + indexId).value,
+        autoArmed: document.getElementById("idxauto-" + indexId).checked,
+        autoMatchRule: document.getElementById("idxrule-" + indexId).value.trim()
+      };
+      showStatus("Saving " + indexId + " settings...");
+      callApi("opsUpdateIndex", { payload: payload })
+        .then(function(snap) {
+          renderOps(snap);
+          showStatus("Updated " + indexId + " settings.");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) { showStatus("Save error: " + err.message); });
+    }
+
+    function stageOpsProof(taskId, input) {
+      if (!input.files || !input.files[0]) return;
+      var file = input.files[0];
+      var lbl = document.getElementById("opsfilelbl-" + taskId);
+      if (lbl) lbl.textContent = "Staging " + file.name + "...";
+
+      if (file.type.indexOf("image/") === 0) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var maxDim = 1600, w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            var canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+            stagedOpsFiles[taskId] = {
+              base64Data: dataUrl.split(",")[1],
+              mimeType: "image/jpeg",
+              fileName: file.name.replace(/\.[^.]+$/, "") + ".jpg"
+            };
+            if (lbl) lbl.textContent = "Attached: " + stagedOpsFiles[taskId].fileName;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        var pdfReader = new FileReader();
+        pdfReader.onload = function(e) {
+          stagedOpsFiles[taskId] = {
+            base64Data: e.target.result.split(",")[1],
+            mimeType: file.type || "application/pdf",
+            fileName: file.name
+          };
+          if (lbl) lbl.textContent = "Attached: " + file.name;
+        };
+        pdfReader.readAsDataURL(file);
+      }
+    }
+
+    function resolveOpsCard(taskId, isDismiss) {
+      if (isDismiss && !window.confirm("Dismiss " + taskId + " without advancing its recurring deadline?")) return;
+      var noteEl = document.getElementById("opsnote-" + taskId);
+      var notes = noteEl ? noteEl.value.trim() : "";
+      var cardEl = document.getElementById("opscard-" + taskId);
+      if (cardEl) { cardEl.style.opacity = "0.5"; cardEl.style.pointerEvents = "none"; }
+
+      var reqBody = { taskId: taskId, notes: notes };
+      if (!isDismiss && stagedOpsFiles[taskId]) {
+        reqBody.base64Data = stagedOpsFiles[taskId].base64Data;
+        reqBody.mimeType = stagedOpsFiles[taskId].mimeType;
+        reqBody.fileName = stagedOpsFiles[taskId].fileName;
+      }
+
+      showStatus(isDismiss ? ("Dismissing " + taskId + "...") : ("Resolving " + taskId + "..."));
+      callApi(isDismiss ? "opsDismiss" : "opsResolve", reqBody)
+        .then(function(snap) {
+          delete stagedOpsFiles[taskId];
+          renderOps(snap);
+          showStatus(isDismiss ? ("Dismissed " + taskId + ".") : ("Resolved " + taskId + " & updated Compliance Index."));
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) {
+          if (cardEl) { cardEl.style.opacity = "1"; cardEl.style.pointerEvents = "auto"; }
+          showStatus("Ops error: " + err.message);
+        });
+    }
+
+    function runAiAuditNow() {
+      if (!window.confirm("Run flagship Gemini grounded compliance audit now (~90–120 seconds)?")) return;
+      var btn = document.getElementById("btnAiAudit");
+      if (btn) btn.disabled = true;
+      showStatus("Running flagship Gemini 4 Carbon grounded compliance audit (~90–120s) — keep screen open...");
+      callApi("opsAuditNow")
+        .then(function(snap) {
+          if (btn) btn.disabled = false;
+          renderOps(snap);
+          var info = (snap && snap.auditRunResult) || {};
+          showStatus("Audit complete via " + (info.proModelUsed || "Gemini") + " (" + (info.proposalCount || 0) + " proposal(s)).");
+          setTimeout(function() { showStatus(""); }, 5000);
+        })
+        .catch(function(err) {
+          if (btn) btn.disabled = false;
+          showStatus("Audit error: " + err.message);
+        });
+    }
+
+    function applyAuditTask(taskId) {
+      var boxes = document.querySelectorAll(".prop-chk-" + taskId);
+      var selected = [];
+      for (var i = 0; i < boxes.length; i++) {
+        if (boxes[i].checked) selected.push(parseInt(boxes[i].value, 10));
+      }
+      var cardEl = document.getElementById("opscard-" + taskId);
+      if (cardEl) { cardEl.style.opacity = "0.5"; cardEl.style.pointerEvents = "none"; }
+      showStatus("Applying " + selected.length + " index update(s) & resolving audit task...");
+      callApi("opsApplyAudit", { taskId: taskId, selectedIndices: selected })
+        .then(function(snap) {
+          renderOps(snap);
+          showStatus("Compliance Index updated & audit report archived.");
+          setTimeout(function() { showStatus(""); }, 4000);
+        })
+        .catch(function(err) {
+          if (cardEl) { cardEl.style.opacity = "1"; cardEl.style.pointerEvents = "auto"; }
+          showStatus("Apply error: " + err.message);
+        });
+    }
     window.onload = initApp;
   </script>
 </body>

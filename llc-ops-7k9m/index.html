@@ -84,6 +84,12 @@
     .idx-tag.act { background: #dcfce7; color: #166534; }
     .idx-tag.cond { background: #fef3c7; color: #92400e; }
     .idx-tag.auto { background: #dbeafe; color: #1e40af; }
+    .ops-subnav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .ops-subbtn { padding: 11px 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; }
+    .ops-subbtn.active { background: #0f172a; color: #fff; border-color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.16); }
+    .btn-audit-full { width: 100%; padding: 11px 12px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; margin-bottom: 14px; }
+    .btn-audit-full:disabled { opacity: 0.6; cursor: not-allowed; }
+  </style>
   </style>
 </head>
 <body>
@@ -210,21 +216,22 @@
         <div id="govPendingContainer"></div>
         <div id="govExecutedSection"></div>
       </div>
-        <div id="paneOps" style="display:none;">
-        <div class="actions-bar">
-          <button id="btnToggleIdx" class="btn-action" onclick="toggleIndexDrawer()">Index (0)</button>
-          <button id="btnAiAudit" class="btn-action btn-scan" onclick="runAiAuditNow()">AI Audit</button>
-          <button class="btn-action" style="flex:0.75;" onclick="loadOps(true)">Refresh</button>
+      <div id="paneOps" style="display:none;">
+        <div class="ops-subnav">
+          <button id="btnOpsTodo" class="ops-subbtn active" onclick="switchOpsView('todo')">To Do</button>
+          <button id="btnOpsInventory" class="ops-subbtn" onclick="switchOpsView('inventory')">Task Inventory</button>
         </div>
-
-        <div id="indexDrawer" class="card" style="display:none;">
-          <div class="gov-title" style="margin-bottom:4px;">Compliance Index &amp; Alert Settings</div>
-          <div class="notify-sub" style="margin-bottom:12px;">Per-item nature, cost, advance alert days, instructions, and email auto-resolution status.</div>
-          <div id="indexListContainer"></div>
-        </div>
+        <button id="btnAiAudit" class="btn-audit-full" onclick="runAiAuditNow()">AI Audit of Task Inventory</button>
 
         <div id="opsOpenContainer"></div>
-        <div id="opsResolvedSection"></div>
+
+        <div id="opsInventoryContainer" style="display:none;">
+          <div class="card">
+            <div class="gov-title" style="margin-bottom:4px;">Task Inventory (Active &amp; Conditional)</div>
+            <div class="notify-sub" style="margin-bottom:12px;">Tap Settings on any item to adjust its nature, cost, advance alert days, instructions, or email auto-resolution rule.</div>
+            <div id="indexListContainer"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -707,16 +714,25 @@ function refreshTopBadges() {
     function escapeAttr(str) {
       return escapeHtml(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
-function loadOps(checkDeadlinesFirst) {
+var opsSubView = "todo";
+
+    function switchOpsView(view) {
+      opsSubView = view === "inventory" ? "inventory" : "todo";
+      var btnTodo = document.getElementById("btnOpsTodo");
+      var btnInv = document.getElementById("btnOpsInventory");
+      var todoPane = document.getElementById("opsOpenContainer");
+      var invPane = document.getElementById("opsInventoryContainer");
+      if (btnTodo) btnTodo.className = opsSubView === "todo" ? "ops-subbtn active" : "ops-subbtn";
+      if (btnInv) btnInv.className = opsSubView === "inventory" ? "ops-subbtn active" : "ops-subbtn";
+      if (todoPane) todoPane.style.display = opsSubView === "todo" ? "block" : "none";
+      if (invPane) invPane.style.display = opsSubView === "inventory" ? "block" : "none";
+    }
+
+    function loadOps(checkDeadlinesFirst) {
       showStatus(checkDeadlinesFirst ? "Checking deadlines & refreshing Ops Tasks..." : "Refreshing Ops Tasks...");
       callApi(checkDeadlinesFirst ? "opsCheckDeadlines" : "opsList")
         .then(function(snap) { showStatus(""); renderOps(snap || {}); })
         .catch(function(err) { showStatus("Ops error: " + err.message); });
-    }
-
-    function toggleIndexDrawer() {
-      var dr = document.getElementById("indexDrawer");
-      dr.style.display = dr.style.display === "none" ? "block" : "none";
     }
 
     function formatDueLabel(deadline, daysUntil) {
@@ -733,20 +749,16 @@ function loadOps(checkDeadlinesFirst) {
 
     function renderOps(snap) {
       var openTasks = (snap && snap.openTasks) ? snap.openTasks : [];
-      var resolved = (snap && snap.recentResolved) ? snap.recentResolved : [];
       cachedOpsIndex = (snap && snap.indexItems) ? snap.indexItems : [];
 
       pendingOpsCount = openTasks.length;
       refreshTopBadges();
-
-      var idxBtn = document.getElementById("btnToggleIdx");
-      if (idxBtn) idxBtn.textContent = "Index (" + cachedOpsIndex.length + ")";
       renderComplianceIndex(cachedOpsIndex);
 
       var openWrap = document.getElementById("opsOpenContainer");
       openWrap.innerHTML = "";
       if (openTasks.length === 0) {
-        openWrap.innerHTML = "<div class='empty'><h3>Ops Tasks Caught Up</h3><p>No statutory filings or compliance tasks are currently due.</p></div>";
+        openWrap.innerHTML = "<div class='empty'><h3>No Unresolved Tasks</h3><p>No Ops Tasks have triggered alerts requiring action right now.</p></div>";
       } else {
         for (var i = 0; i < openTasks.length; i++) {
           var t = openTasks[i];
@@ -785,7 +797,7 @@ function loadOps(checkDeadlinesFirst) {
             }
             proposalsHtml =
               "<div class='prop-box'>" +
-                "<div style='font-size:12px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:4px;'>Proposed Compliance Index Updates</div>" +
+                "<div style='font-size:12px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:4px;'>Proposed Task Inventory Updates</div>" +
                 pItems +
                 "<button class='btn-verify' style='width:100%;margin-top:8px;' onclick=\"applyAuditTask('" + escapeAttr(t.taskId) + "')\">Apply Selected Updates &amp; Resolve</button>" +
               "</div>";
@@ -821,40 +833,36 @@ function loadOps(checkDeadlinesFirst) {
         }
       }
 
-      var resWrap = document.getElementById("opsResolvedSection");
-      resWrap.innerHTML = "";
-      if (resolved.length > 0) {
-        var rHtml = "<div class='sec-hdr'>Recent Resolved Ops Tasks</div>";
-        for (var j = 0; j < resolved.length; j++) {
-          var rv = resolved[j];
-          var proofLink = rv.proofUrl
-            ? "<a class='receipt-link' style='margin:6px 0 0;' href='" + escapeAttr(rv.proofUrl) + "' target='_blank' rel='noopener'>Open Archived Proof in Drive &rarr;</a>"
-            : "";
-          rHtml +=
-            "<div class='exec-item'>" +
-              "<div class='gov-head' style='margin-bottom:4px;'>" +
-                "<span class='gov-id' style='background:#f0fdf4;color:#15803d;border-color:#bbf7d0;'>" + escapeHtml(rv.taskId) + " &bull; Resolved</span>" +
-                "<span class='gov-meta'>" + escapeHtml(rv.resolvedMethod || "Resolved") + "</span>" +
-              "</div>" +
-              "<div style='font-size:14px;font-weight:700;color:#0f172a;'>" + escapeHtml(rv.title) + "</div>" +
-              (rv.confirmationNotes ? "<div class='notify-sub' style='margin-top:4px;'>" + escapeHtml(rv.confirmationNotes) + "</div>" : "") +
-              proofLink +
-            "</div>";
-        }
-        resWrap.innerHTML = rHtml;
-      }
+      switchOpsView(opsSubView);
     }
 
     function renderComplianceIndex(items) {
       var wrap = document.getElementById("indexListContainer");
       if (!wrap) return;
       wrap.innerHTML = "";
-      for (var i = 0; i < items.length; i++) {
-        var it = items[i];
-        var stCls = it.state === "Active" ? "idx-tag act" : (it.state === "Conditional" ? "idx-tag cond" : "idx-tag");
+
+      var visibleItems = [];
+      for (var k = 0; k < items.length; k++) {
+        var st = String(items[k].state || "").trim();
+        if (st === "Active" || st === "Conditional") {
+          visibleItems.push(items[k]);
+        }
+      }
+
+      if (visibleItems.length === 0) {
+        wrap.innerHTML = "<div class='empty' style='padding:20px;margin:0;'><h3>No Active or Conditional Items</h3></div>";
+        return;
+      }
+
+      for (var i = 0; i < visibleItems.length; i++) {
+        var it = visibleItems[i];
+        var stCls = it.state === "Active" ? "idx-tag act" : "idx-tag cond";
         var autoBadge = it.autoArmed
           ? "<span class='idx-tag auto'>Auto-Resolve: Armed</span>"
           : "<span class='idx-tag'>Auto-Resolve: Manual Only</span>";
+        var lastDoneBadge = it.lastResolvedDate
+          ? ("<span class='idx-tag'>Last Completed: " + escapeHtml(it.lastResolvedDate) + "</span>")
+          : "";
 
         var stateOpts = ["Active", "Conditional", "Retired"].map(function(s) {
           return "<option value='" + s + "'" + (it.state === s ? " selected" : "") + ">" + s + "</option>";
@@ -875,6 +883,7 @@ function loadOps(checkDeadlinesFirst) {
             "<span class='idx-tag'>" + escapeHtml(it.cadence + " • Next: " + it.nextDeadline) + "</span>" +
             "<span class='idx-tag'>" + escapeHtml(fmtUsd(it.cost) + " • Alert -" + it.advanceAlertDays + "d") + "</span>" +
             autoBadge +
+            lastDoneBadge +
           "</div>" +
           "<div style='font-size:12px;color:#475569;'>" + escapeHtml(it.nature) + "</div>" +
           "<div id='idxedit-" + escapeAttr(it.indexId) + "' style='display:none;margin-top:10px;padding-top:10px;border-top:1px solid #cbd5e1;'>" +
@@ -988,7 +997,7 @@ function loadOps(checkDeadlinesFirst) {
         .then(function(snap) {
           delete stagedOpsFiles[taskId];
           renderOps(snap);
-          showStatus(isDismiss ? ("Dismissed " + taskId + ".") : ("Resolved " + taskId + " & updated Compliance Index."));
+          showStatus(isDismiss ? ("Dismissed " + taskId + ".") : ("Resolved " + taskId + " & updated Task Inventory."));
           setTimeout(function() { showStatus(""); }, 3500);
         })
         .catch(function(err) {
@@ -998,16 +1007,17 @@ function loadOps(checkDeadlinesFirst) {
     }
 
     function runAiAuditNow() {
-      if (!window.confirm("Run flagship Gemini grounded compliance audit now (~90–120 seconds)?")) return;
+      if (!window.confirm("Run flagship Gemini 4 Carbon audit of Task Inventory for changes since the last index audit (~90–120 seconds)?")) return;
       var btn = document.getElementById("btnAiAudit");
       if (btn) btn.disabled = true;
-      showStatus("Running flagship Gemini 4 Carbon grounded compliance audit (~90–120s) — keep screen open...");
+      showStatus("Auditing Task Inventory with flagship Gemini 4 Carbon (~90–120s) — keep screen open...");
       callApi("opsAuditNow")
         .then(function(snap) {
           if (btn) btn.disabled = false;
+          opsSubView = "todo";
           renderOps(snap);
           var info = (snap && snap.auditRunResult) || {};
-          showStatus("Audit complete via " + (info.proModelUsed || "Gemini") + " (" + (info.proposalCount || 0) + " proposal(s)).");
+          showStatus("Audit complete via " + (info.proModelUsed || "Gemini") + " (" + (info.proposalCount || 0) + " proposal(s)) — review in To Do.");
           setTimeout(function() { showStatus(""); }, 5000);
         })
         .catch(function(err) {
@@ -1024,11 +1034,11 @@ function loadOps(checkDeadlinesFirst) {
       }
       var cardEl = document.getElementById("opscard-" + taskId);
       if (cardEl) { cardEl.style.opacity = "0.5"; cardEl.style.pointerEvents = "none"; }
-      showStatus("Applying " + selected.length + " index update(s) & resolving audit task...");
+      showStatus("Applying " + selected.length + " Task Inventory update(s) & resolving audit task...");
       callApi("opsApplyAudit", { taskId: taskId, selectedIndices: selected })
         .then(function(snap) {
           renderOps(snap);
-          showStatus("Compliance Index updated & audit report archived.");
+          showStatus("Task Inventory updated & audit report archived.");
           setTimeout(function() { showStatus(""); }, 4000);
         })
         .catch(function(err) {

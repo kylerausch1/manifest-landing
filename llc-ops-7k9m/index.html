@@ -11,12 +11,13 @@
   <title>Manifest Ops</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); background: #f1f5f9; color: #0f172a; }
-    .wrap { max-width: 500px; margin: 0 auto; }
+    body { margin: 0; padding: max(16px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom)); background: #f1f5f9; color: #0f172a; }
+    .wrap { max-width: 520px; margin: 0 auto; }
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
-    .topbar h1 { font-size: 20px; margin: 0; }
+    .topbar h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
     .badge { background: #1e293b; color: #fff; padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; }
+    .badge.ok { background: #16a34a; }
     .btn-gear { background: #e2e8f0; color: #334155; border: none; border-radius: 99px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .notify-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
     .notify-title { font-size: 14px; font-weight: 600; color: #0f172a; }
@@ -27,28 +28,50 @@
     .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: #fff; transition: 0.2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     input:checked + .slider { background-color: #16a34a; }
     input:checked + .slider:before { transform: translateX(20px); }
-    .actions-bar { display: flex; gap: 8px; margin-bottom: 16px; }
-    .btn-action { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; }
+    .seg-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+    .seg-btn { border: none; background: transparent; color: #475569; font-size: 14px; font-weight: 700; padding: 10px 8px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .seg-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.12); }
+    .tab-pill { background: #cbd5e1; color: #0f172a; border-radius: 99px; padding: 1px 7px; font-size: 12px; font-weight: 700; }
+    .seg-btn.active .tab-pill.warn { background: #dbeafe; color: #1d4ed8; }
+    .actions-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+    .btn-action { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; color: #0f172a; }
     .btn-scan { background: #2563eb; color: #fff; border: none; }
     .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.07); }
     .dup-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
-    .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; color: #0f172a; }
     .field textarea { min-height: 68px; resize: vertical; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .receipt-link { display: inline-block; margin-bottom: 14px; font-size: 14px; color: #2563eb; text-decoration: none; font-weight: 600; }
-    .card-btns { display: flex; gap: 10px; margin-top: 6px; }
-    .btn-verify { flex: 2; padding: 14px; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .receipt-link { display: inline-block; margin-bottom: 12px; font-size: 14px; color: #2563eb; text-decoration: none; font-weight: 600; }
+    .card-btns { display: flex; gap: 10px; margin-top: 8px; }
+    .btn-verify { flex: 2; padding: 14px; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
     .btn-ignore { flex: 1; padding: 14px; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .status-banner { display: none; padding: 12px; border-radius: 10px; background: #dbeafe; color: #1e40af; font-weight: 600; font-size: 14px; margin-bottom: 14px; text-align: center; }
-    .empty { text-align: center; padding: 42px 20px; background: #fff; border-radius: 14px; color: #64748b; }
+    .status-banner { display: none; padding: 12px; border-radius: 10px; background: #dbeafe; color: #1e40af; font-weight: 600; font-size: 14px; margin-bottom: 14px; text-align: center; line-height: 1.4; }
+    .empty { text-align: center; padding: 36px 20px; background: #fff; border-radius: 14px; color: #64748b; margin-bottom: 16px; }
+    .cap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .cap-tile { background: #fff; border: 1px solid #cbd5e1; border-radius: 11px; padding: 10px 12px; }
+    .cap-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; }
+    .cap-val { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 3px; }
+    .cap-val.debt-zero { color: #15803d; }
+    .gov-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .gov-id { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+    .gov-meta { font-size: 12px; color: #64748b; font-weight: 600; }
+    .gov-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 6px; line-height: 1.35; }
+    .gov-cite { font-size: 12px; color: #475569; margin-bottom: 10px; }
+    .gov-body { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 11px 12px; font-size: 13px; line-height: 1.5; color: #1e293b; white-space: pre-wrap; max-height: 240px; overflow-y: auto; margin-bottom: 10px; }
+    .ueta-note { font-size: 12px; color: #334155; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+    .sec-hdr { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin: 18px 2px 10px; }
+    .exec-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+    .exec-hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #64748b; margin-top: 4px; word-break: break-all; }
+    .chk-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px; }
+    .chk-row input { width: 18px; height: 18px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <h1>Manifest Kinetics</h1>
+      <h1>Manifest Ops</h1>
       <div class="topbar-right">
         <span id="queueBadge" class="badge">Setup</span>
         <button class="btn-gear" onclick="openSetup()">API Key</button>
@@ -67,7 +90,7 @@
           <label>API_SECRET Passkey</label>
           <input type="password" id="cfgSecret" name="password" autocomplete="current-password" placeholder="Paste API_SECRET from Script Properties" required>
         </div>
-        <button type="submit" class="btn-verify" style="width:100%;">Save &amp; Connect Ledger</button>
+        <button type="submit" class="btn-verify" style="width:100%;">Save &amp; Connect Hub</button>
       </form>
     </div>
 
@@ -83,15 +106,89 @@
         </label>
       </div>
 
-      <div class="actions-bar">
-        <label class="btn-action btn-scan">
-          + Scan Screenshot / PDF
-          <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(this)">
-        </label>
-        <button class="btn-action" onclick="loadQueue()">Refresh</button>
+      <div class="seg-tabs">
+        <button id="tabBtnPurchases" class="seg-btn active" onclick="switchTab('purchases')">
+          Purchases <span id="pillPurchases" class="tab-pill">0</span>
+        </button>
+        <button id="tabBtnGov" class="seg-btn" onclick="switchTab('gov')">
+          Governance <span id="pillGov" class="tab-pill">0</span>
+        </button>
       </div>
 
-      <div id="cardsContainer"></div>
+      <div id="panePurchases">
+        <div class="actions-bar">
+          <label class="btn-action btn-scan">
+            + Scan Screenshot / PDF
+            <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(this)">
+          </label>
+          <button class="btn-action" onclick="loadQueue()">Refresh</button>
+        </div>
+        <div id="cardsContainer"></div>
+      </div>
+
+      <div id="paneGov" style="display:none;">
+        <div class="cap-grid">
+          <div class="cap-tile">
+            <div class="cap-lbl">Paid-In Capital</div>
+            <div id="capPaidIn" class="cap-val">USD 0.00</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">Visa 4463 Equity</div>
+            <div id="capVisa" class="cap-val">USD 0.00</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">Book Capital</div>
+            <div id="capBook" class="cap-val">USD 0.00</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">Member Debt</div>
+            <div id="capDebt" class="cap-val debt-zero">USD 0.00</div>
+          </div>
+        </div>
+
+        <div class="actions-bar">
+          <button class="btn-action btn-scan" onclick="toggleNewConsentForm()">+ New Consent</button>
+          <button class="btn-action" onclick="loadGov()">Refresh</button>
+        </div>
+
+        <div id="newConsentCard" class="card" style="display:none;">
+          <div class="gov-title" style="margin-bottom:12px;">Create Corporate Consent</div>
+          <div class="field">
+            <label>Action Category</label>
+            <select id="newGovType">
+              <option value="Capital Contribution (Cash)">Capital Contribution (Cash)</option>
+              <option value="Member Distribution (Cash)">Member Distribution (Cash)</option>
+              <option value="IP / Asset Assignment">IP / Asset Assignment</option>
+              <option value="Other Consent">Other Consent</option>
+            </select>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Amount (USD)</label>
+              <input type="number" step="0.01" id="newGovAmt" placeholder="0.00" value="0.00">
+            </div>
+            <div class="field">
+              <label>Effective Date</label>
+              <input type="date" id="newGovDate">
+            </div>
+          </div>
+          <div class="field">
+            <label>Reference / Asset / Bank Memo Note</label>
+            <textarea id="newGovNote" placeholder="e.g. Wells Fargo transfer ref or SwimWinch IP description"></textarea>
+          </div>
+          <label class="chk-row">
+            <input type="checkbox" id="newGovSignNow" checked>
+            Immediately E-Sign &amp; Generate SHA-256 PDF
+          </label>
+          <div class="card-btns">
+            <button class="btn-verify" onclick="submitNewConsent()">Create Consent</button>
+            <button class="btn-ignore" onclick="toggleNewConsentForm()">Cancel</button>
+          </div>
+        </div>
+
+        <div id="govPendingContainer"></div>
+        <div id="govExecutedSection"></div>
+      </div>
     </div>
   </div>
 
@@ -102,6 +199,23 @@
       "Personal Visa 4463",
       "Other / Checking / ACH"
     ];
+    var activeTab = "purchases";
+    var pendingPurchaseCount = 0;
+    var pendingGovCount = 0;
+
+    function fmtUsd(val) {
+      var n = Number(val || 0);
+      var sign = n < 0 ? "-" : "";
+      var abs = Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return sign + "USD " + abs;
+    }
+
+    function todayIso() {
+      var d = new Date();
+      var m = String(d.getMonth() + 1).padStart(2, "0");
+      var day = String(d.getDate()).padStart(2, "0");
+      return d.getFullYear() + "-" + m + "-" + day;
+    }
 
     function callApi(action, extra) {
       var url = (localStorage.getItem("MK_API_URL") || "").trim();
@@ -117,7 +231,7 @@
         if (!res || !res.ok) {
           throw new Error((res && res.error) || "API error");
         }
-        return res.data;
+        return res.data !== undefined ? res.data : res;
       });
     }
 
@@ -126,6 +240,37 @@
       if (!msg) { b.style.display = "none"; return; }
       b.textContent = msg;
       b.style.display = "block";
+    }
+
+    function refreshTopBadges() {
+      var total = pendingPurchaseCount + pendingGovCount;
+      var qb = document.getElementById("queueBadge");
+      qb.textContent = total === 0 ? "All Clear" : (total + " Pending");
+      qb.className = total === 0 ? "badge ok" : "badge";
+
+      var pPill = document.getElementById("pillPurchases");
+      pPill.textContent = String(pendingPurchaseCount);
+      pPill.className = pendingPurchaseCount > 0 ? "tab-pill warn" : "tab-pill";
+
+      var gPill = document.getElementById("pillGov");
+      gPill.textContent = String(pendingGovCount);
+      gPill.className = pendingGovCount > 0 ? "tab-pill warn" : "tab-pill";
+    }
+
+    function switchTab(tab) {
+      activeTab = tab === "gov" ? "gov" : "purchases";
+      document.getElementById("tabBtnPurchases").className = activeTab === "purchases" ? "seg-btn active" : "seg-btn";
+      document.getElementById("tabBtnGov").className = activeTab === "gov" ? "seg-btn active" : "seg-btn";
+      document.getElementById("panePurchases").style.display = activeTab === "purchases" ? "block" : "none";
+      document.getElementById("paneGov").style.display = activeTab === "gov" ? "block" : "none";
+    }
+
+    function detectInitialTab() {
+      var h = String(window.location.hash || "").toLowerCase();
+      var s = String(window.location.search || "").toLowerCase();
+      if (h.indexOf("gov") !== -1 || s.indexOf("tab=gov") !== -1) {
+        switchTab("gov");
+      }
     }
 
     function openSetup() {
@@ -149,11 +294,11 @@
       var sub = document.getElementById("notifySub");
       toggle.checked = Boolean(enabled);
       if (!enabled) {
-        sub.textContent = "Muted (no phone buzz on new orders)";
+        sub.textContent = "Muted (no phone buzz on new LLC items)";
       } else if (hasPush === false) {
         sub.textContent = "Enabled (add BARK_KEY in Script Properties)";
       } else {
-        sub.textContent = "Active (buzzes phone when orders arrive)";
+        sub.textContent = "Active (buzzes phone on new LLC items)";
       }
     }
 
@@ -175,20 +320,29 @@
     }
 
     function initApp() {
+      detectInitialTab();
       if (!localStorage.getItem("MK_API_URL") || !localStorage.getItem("MK_API_SECRET")) {
         openSetup();
         return;
       }
       document.getElementById("setupCard").style.display = "none";
       document.getElementById("appMain").style.display = "block";
-      showStatus("Loading pending purchases...");
-      callApi("boot")
-        .then(function(data) {
-          CATEGORIES = data.categories || [];
-          if (data.cardOptions && data.cardOptions.length) CARD_OPTIONS = data.cardOptions;
-          updateNotifyLabel(data.notificationsEnabled, data.hasPushConfig !== false);
+      document.getElementById("newGovDate").value = todayIso();
+      showStatus("Syncing Manifest Ops queues...");
+
+      Promise.all([callApi("boot"), callApi("govList")])
+        .then(function(results) {
+          var bootData = results[0] || {};
+          var govSnap = results[1] || {};
+          CATEGORIES = bootData.categories || [];
+          if (bootData.cardOptions && bootData.cardOptions.length) CARD_OPTIONS = bootData.cardOptions;
+          updateNotifyLabel(bootData.notificationsEnabled, bootData.hasPushConfig !== false);
+          renderItems(bootData.items || []);
+          renderGov(govSnap);
+          if (pendingPurchaseCount === 0 && pendingGovCount > 0 && !window.location.hash) {
+            switchTab("gov");
+          }
           showStatus("");
-          renderItems(data.items || []);
         })
         .catch(function(err) {
           showStatus("Connection error: " + err.message);
@@ -197,18 +351,26 @@
     }
 
     function loadQueue() {
-      showStatus("Refreshing...");
+      showStatus("Refreshing purchases...");
       callApi("list")
         .then(function(items) { showStatus(""); renderItems(items || []); })
         .catch(function(err) { showStatus("Error: " + err.message); });
     }
 
+    function loadGov() {
+      showStatus("Refreshing governance & capital...");
+      callApi("govList")
+        .then(function(snap) { showStatus(""); renderGov(snap || {}); })
+        .catch(function(err) { showStatus("Error: " + err.message); });
+    }
+
     function renderItems(items) {
-      document.getElementById("queueBadge").textContent = items.length + " Pending";
+      pendingPurchaseCount = items.length;
+      refreshTopBadges();
       var container = document.getElementById("cardsContainer");
       container.innerHTML = "";
       if (items.length === 0) {
-        container.innerHTML = "<div class='empty'><h3>All Caught Up</h3><p>Every LLC purchase is verified and categorized for Schedule C.</p></div>";
+        container.innerHTML = "<div class='empty'><h3>Purchases Caught Up</h3><p>Every LLC purchase is verified and categorized for Schedule C.</p></div>";
         return;
       }
       for (var i = 0; i < items.length; i++) {
@@ -250,11 +412,159 @@
           "<div class='field'><label>IRS Schedule C Category</label><select id='cat-" + it.id + "'>" + catOpts + "</select></div>" +
           "<div class='field'><label>Tax Notes / Business Purpose</label><textarea id='notes-" + it.id + "' placeholder='e.g. Aluminum stock for prototype assembly'>" + escapeHtml(it.taxNotes) + "</textarea></div>" +
           "<div class='card-btns'>" +
-            "<button class='btn-verify' onclick=\"submitCard('" + it.id + "', 'verify')\">Verify & Save</button>" +
+            "<button class='btn-verify' onclick=\"submitCard('" + it.id + "', 'verify')\">Verify &amp; Save</button>" +
             "<button class='btn-ignore' onclick=\"submitCard('" + it.id + "', 'ignore')\">Ignore</button>" +
           "</div>";
         container.appendChild(card);
       }
+    }
+
+    function renderGov(snap) {
+      var pending = (snap && snap.pending) ? snap.pending : [];
+      var executed = (snap && snap.recentExecuted) ? snap.recentExecuted : [];
+      var cap = (snap && snap.capitalSummary) ? snap.capitalSummary : {};
+
+      pendingGovCount = pending.length;
+      refreshTopBadges();
+
+      document.getElementById("capPaidIn").textContent = fmtUsd(cap.paidInCapital);
+      document.getElementById("capVisa").textContent = fmtUsd(cap.visa4463Equity);
+      document.getElementById("capBook").textContent = fmtUsd(cap.bookCapital);
+      var debtEl = document.getElementById("capDebt");
+      debtEl.textContent = fmtUsd(cap.memberDebt);
+      debtEl.className = Number(cap.memberDebt || 0) === 0 ? "cap-val debt-zero" : "cap-val";
+
+      var pWrap = document.getElementById("govPendingContainer");
+      pWrap.innerHTML = "";
+      if (pending.length === 0) {
+        pWrap.innerHTML = "<div class='empty'><h3>Governance Caught Up</h3><p>All required Sole Member consents are executed and archived as SHA-256 PDFs.</p></div>";
+      } else {
+        for (var i = 0; i < pending.length; i++) {
+          var g = pending[i];
+          var card = document.createElement("div");
+          card.className = "card";
+          card.id = "govcard-" + g.id;
+          card.innerHTML =
+            "<div class='gov-head'>" +
+              "<span class='gov-id'>" + escapeHtml(g.id) + " &bull; Needs E-Sign</span>" +
+              "<span class='gov-meta'>" + escapeHtml(g.effectiveDate) + " &bull; " + escapeHtml(fmtUsd(g.amount)) + "</span>" +
+            "</div>" +
+            "<div class='gov-title'>" + escapeHtml(g.title) + "</div>" +
+            "<div class='gov-cite'><strong>Category:</strong> " + escapeHtml(g.actionType) + "<br><strong>Authority:</strong> " + escapeHtml(g.citation) + "</div>" +
+            "<div class='gov-body'>" + escapeHtml(g.body) + "</div>" +
+            "<div class='ueta-note'><strong>UETA Attribution:</strong> Tapping Approve executes <em>/s/ Kyle Brian Rausch</em> (Sole Member) and archives a tamper-evident SHA-256 PDF in Corporate Records.</div>" +
+            "<div class='card-btns'>" +
+              "<button class='btn-verify' onclick=\"signGovCard('" + escapeAttr(g.id) + "')\">Approve &amp; E-Sign</button>" +
+              "<button class='btn-ignore' onclick=\"dismissGovCard('" + escapeAttr(g.id) + "')\">Dismiss</button>" +
+            "</div>";
+          pWrap.appendChild(card);
+        }
+      }
+
+      var eWrap = document.getElementById("govExecutedSection");
+      eWrap.innerHTML = "";
+      if (executed.length > 0) {
+        var html = "<div class='sec-hdr'>Recent Executed Corporate Records</div>";
+        for (var j = 0; j < executed.length; j++) {
+          var ex = executed[j];
+          var shortHash = ex.sha256 ? (ex.sha256.substring(0, 20) + "...") : "N/A";
+          var pdfLink = ex.pdfUrl
+            ? "<a class='receipt-link' style='margin:6px 0 0;' href='" + escapeAttr(ex.pdfUrl) + "' target='_blank' rel='noopener'>Open Signed PDF in Drive &rarr;</a>"
+            : "";
+          html +=
+            "<div class='exec-item'>" +
+              "<div class='gov-head' style='margin-bottom:4px;'>" +
+                "<span class='gov-id' style='background:#f0fdf4;color:#15803d;border-color:#bbf7d0;'>" + escapeHtml(ex.id) + " &bull; Executed</span>" +
+                "<span class='gov-meta'>" + escapeHtml(ex.effectiveDate) + " &bull; " + escapeHtml(fmtUsd(ex.amount)) + "</span>" +
+              "</div>" +
+              "<div style='font-size:14px;font-weight:700;color:#0f172a;'>" + escapeHtml(ex.title) + "</div>" +
+              "<div class='exec-hash'>SHA-256: " + escapeHtml(shortHash) + "</div>" +
+              pdfLink +
+            "</div>";
+        }
+        eWrap.innerHTML = html;
+      }
+    }
+
+    function signGovCard(id) {
+      var cardEl = document.getElementById("govcard-" + id);
+      if (cardEl) {
+        cardEl.style.opacity = "0.5";
+        cardEl.style.pointerEvents = "none";
+      }
+      showStatus("Executing UETA signature & archiving SHA-256 PDF...");
+      callApi("govSign", { id: id })
+        .then(function(snap) {
+          renderGov(snap);
+          showStatus("Executed " + id + " — signed PDF archived in Corporate Records.");
+          setTimeout(function() { showStatus(""); }, 4000);
+        })
+        .catch(function(err) {
+          if (cardEl) {
+            cardEl.style.opacity = "1";
+            cardEl.style.pointerEvents = "auto";
+          }
+          showStatus("Sign error: " + err.message);
+        });
+    }
+
+    function dismissGovCard(id) {
+      if (!window.confirm("Dismiss " + id + " without executing a signed PDF?")) return;
+      var cardEl = document.getElementById("govcard-" + id);
+      if (cardEl) {
+        cardEl.style.opacity = "0.5";
+        cardEl.style.pointerEvents = "none";
+      }
+      showStatus("Dismissing " + id + "...");
+      callApi("govDismiss", { id: id })
+        .then(function(snap) {
+          showStatus("");
+          renderGov(snap);
+        })
+        .catch(function(err) {
+          if (cardEl) {
+            cardEl.style.opacity = "1";
+            cardEl.style.pointerEvents = "auto";
+          }
+          showStatus("Dismiss error: " + err.message);
+        });
+    }
+
+    function toggleNewConsentForm() {
+      var el = document.getElementById("newConsentCard");
+      var open = el.style.display === "none";
+      el.style.display = open ? "block" : "none";
+      if (open && !document.getElementById("newGovDate").value) {
+        document.getElementById("newGovDate").value = todayIso();
+      }
+    }
+
+    function submitNewConsent() {
+      var actType = document.getElementById("newGovType").value;
+      var amt = parseFloat(document.getElementById("newGovAmt").value || "0") || 0;
+      var effDate = document.getElementById("newGovDate").value || todayIso();
+      var note = document.getElementById("newGovNote").value.trim();
+      var signNow = document.getElementById("newGovSignNow").checked;
+
+      showStatus(signNow ? "Creating & e-signing consent..." : "Staging consent to queue...");
+      callApi("govCreate", {
+        actionType: actType,
+        amount: amt,
+        effectiveDate: effDate,
+        note: note,
+        signNow: signNow
+      })
+      .then(function(snap) {
+        document.getElementById("newGovAmt").value = "0.00";
+        document.getElementById("newGovNote").value = "";
+        document.getElementById("newConsentCard").style.display = "none";
+        renderGov(snap);
+        showStatus(signNow ? "Consent executed & archived in Drive." : "Consent staged to queue.");
+        setTimeout(function() { showStatus(""); }, 3500);
+      })
+      .catch(function(err) {
+        showStatus("Create error: " + err.message);
+      });
     }
 
     function submitCard(id, action) {
@@ -276,7 +586,14 @@
       cardEl.style.pointerEvents = "none";
       showStatus(action === "ignore" ? "Ignoring item..." : "Saving verified expense...");
       callApi("verify", { payload: payload })
-        .then(function(items) { showStatus(""); renderItems(items || []); })
+        .then(function(items) {
+          showStatus("");
+          renderItems(items || []);
+          return callApi("govList");
+        })
+        .then(function(snap) {
+          if (snap) renderGov(snap);
+        })
         .catch(function(err) {
           cardEl.style.opacity = "1";
           cardEl.style.pointerEvents = "auto";

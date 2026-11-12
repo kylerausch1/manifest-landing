@@ -209,6 +209,7 @@
 
         <div id="govPendingContainer"></div>
         <div id="govExecutedSection"></div>
+      </div>
         <div id="paneOps" style="display:none;">
         <div class="actions-bar">
           <button id="btnToggleIdx" class="btn-action" onclick="toggleIndexDrawer()">Index (0)</button>
@@ -224,7 +225,6 @@
 
         <div id="opsOpenContainer"></div>
         <div id="opsResolvedSection"></div>
-      </div>
       </div>
     </div>
   </div>
@@ -242,6 +242,46 @@
     var pendingOpsCount = 0;
     var cachedOpsIndex = [];
     var stagedOpsFiles = {};
+    var stagedOpsFiles = {};
+
+    function fmtUsd(val) {
+      var n = Number(val || 0);
+      var sign = n < 0 ? "-" : "";
+      var abs = Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return sign + "USD " + abs;
+    }
+
+    function todayIso() {
+      var d = new Date();
+      var m = String(d.getMonth() + 1).padStart(2, "0");
+      var day = String(d.getDate()).padStart(2, "0");
+      return d.getFullYear() + "-" + m + "-" + day;
+    }
+
+    function callApi(action, extra) {
+      var url = (localStorage.getItem("MK_API_URL") || "").trim();
+      var token = (localStorage.getItem("MK_API_SECRET") || "").trim();
+      var payload = Object.assign({ token: token, action: action }, extra || {});
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res || !res.ok) {
+            throw new Error((res && res.error) || "API error");
+          }
+          return res.data !== undefined ? res.data : res;
+        });
+    }
+
+    function showStatus(msg) {
+      var b = document.getElementById("statusBanner");
+      if (!msg) { b.style.display = "none"; return; }
+      b.textContent = msg;
+      b.style.display = "block";
+    }
 
     function openSetup() {
       document.getElementById("cfgUrl").value = localStorage.getItem("MK_API_URL") || "";

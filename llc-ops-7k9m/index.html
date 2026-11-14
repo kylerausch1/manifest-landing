@@ -11,13 +11,14 @@
   <title>Manifest Ops</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; padding: max(16px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom)); background: #f1f5f9; color: #0f172a; }
+    body { margin: 0; padding: max(16px, env(safe-area-inset-top)) 14px max(28px, env(safe-area-inset-bottom)); background: #f1f5f9; color: #0f172a; }
     .wrap { max-width: 520px; margin: 0 auto; }
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
     .topbar h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
     .badge { background: #1e293b; color: #fff; padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; }
     .badge.ok { background: #16a34a; }
+    .badge.alert { background: #dc2626; }
     .btn-gear { background: #e2e8f0; color: #334155; border: none; border-radius: 99px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .notify-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
     .notify-title { font-size: 14px; font-weight: 600; color: #0f172a; }
@@ -28,39 +29,42 @@
     .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: #fff; transition: 0.2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     input:checked + .slider { background-color: #16a34a; }
     input:checked + .slider:before { transform: translateX(20px); }
-    .seg-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
-    .seg-btn { border: none; background: transparent; color: #475569; font-size: 13px; font-weight: 700; padding: 9px 4px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }    .seg-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.12); }
-    .tab-pill { background: #cbd5e1; color: #0f172a; border-radius: 99px; padding: 1px 7px; font-size: 12px; font-weight: 700; }
-    .seg-btn.active .tab-pill.warn { background: #dbeafe; color: #1d4ed8; }
-    .actions-bar { display: flex; gap: 8px; margin-bottom: 14px; }
-    .btn-action { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; color: #0f172a; }
+    .seg-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+    .seg-btn { border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 700; padding: 9px 2px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
+    .seg-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.12); }
+    .tab-pill { background: #cbd5e1; color: #0f172a; border-radius: 99px; padding: 1px 6px; font-size: 11px; font-weight: 700; }
+    .tab-pill.warn { background: #dbeafe; color: #1d4ed8; }
+    .tab-pill.urgent { background: #fee2e2; color: #b91c1c; }
+    .actions-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-action { flex: 1; padding: 11px 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; color: #0f172a; }
     .btn-scan { background: #2563eb; color: #fff; border: none; }
-    .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.07); }
+    .card { background: #fff; border-radius: 14px; padding: 15px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.07); }
     .dup-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
     .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; color: #0f172a; }
-    .field textarea { min-height: 68px; resize: vertical; }
+    .field textarea { min-height: 64px; resize: vertical; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .receipt-link { display: inline-block; margin-bottom: 12px; font-size: 14px; color: #2563eb; text-decoration: none; font-weight: 600; }
-    .card-btns { display: flex; gap: 10px; margin-top: 8px; }
-    .btn-verify { flex: 2; padding: 14px; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-    .btn-ignore { flex: 1; padding: 14px; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .card-btns { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-verify { flex: 2; padding: 13px; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-ignore { flex: 1; padding: 13px; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .status-banner { display: none; padding: 12px; border-radius: 10px; background: #dbeafe; color: #1e40af; font-weight: 600; font-size: 14px; margin-bottom: 14px; text-align: center; line-height: 1.4; }
-    .empty { text-align: center; padding: 36px 20px; background: #fff; border-radius: 14px; color: #64748b; margin-bottom: 16px; }
-    .cap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .empty { text-align: center; padding: 32px 18px; background: #fff; border-radius: 14px; color: #64748b; margin-bottom: 14px; }
+    .cap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
     .cap-tile { background: #fff; border: 1px solid #cbd5e1; border-radius: 11px; padding: 10px 12px; }
     .cap-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; }
-    .cap-val { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 3px; }
+    .cap-val { font-size: 15px; font-weight: 700; color: #0f172a; margin-top: 3px; }
     .cap-val.debt-zero { color: #15803d; }
+    .cap-val.alert-red { color: #dc2626; }
     .gov-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
     .gov-id { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
     .gov-meta { font-size: 12px; color: #64748b; font-weight: 600; }
-    .gov-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 6px; line-height: 1.35; }
+    .gov-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 6px; line-height: 1.35; }
     .gov-cite { font-size: 12px; color: #475569; margin-bottom: 10px; }
     .gov-body { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 11px 12px; font-size: 13px; line-height: 1.5; color: #1e293b; white-space: pre-wrap; max-height: 240px; overflow-y: auto; margin-bottom: 10px; }
     .ueta-note { font-size: 12px; color: #334155; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
-    .sec-hdr { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin: 18px 2px 10px; }
+    .sec-hdr { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin: 16px 2px 10px; }
     .exec-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
     .exec-hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #64748b; margin-top: 4px; word-break: break-all; }
     .chk-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px; }
@@ -85,7 +89,7 @@
     .idx-tag.cond { background: #fef3c7; color: #92400e; }
     .idx-tag.auto { background: #dbeafe; color: #1e40af; }
     .ops-subnav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    .ops-subbtn { padding: 11px 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; }
+    .ops-subbtn { padding: 10px 8px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 700; font-size: 13px; cursor: pointer; text-align: center; }
     .ops-subbtn.active { background: #0f172a; color: #fff; border-color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.16); }
     .btn-audit-full { width: 100%; padding: 11px 12px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; margin-bottom: 14px; }
     .btn-audit-full:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -95,8 +99,42 @@
     .receipt-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
     .receipt-row .receipt-link { margin-bottom: 0; }
     .receipt-link.cancel-proof { color: #b91c1c; }
-    .btn-cancel-confirm { flex: 2; padding: 14px; background: #dc2626; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-    .btn-net-verify { width: 100%; padding: 13px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .btn-cancel-confirm { flex: 2; padding: 13px; background: #dc2626; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-net-verify { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+
+    /* Supplies Tab Styles */
+    .sup-subnav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+    .sup-subbtn { padding: 9px 4px; border-radius: 9px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 700; font-size: 12px; cursor: pointer; text-align: center; white-space: nowrap; }
+    .sup-subbtn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+    .sup-search { width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; margin-bottom: 12px; }
+    .sup-card-attn { border: 2px solid #ef4444; background: #fffafb; }
+    .sup-card-deliv { border: 2px solid #2563eb; background: #f8fbff; }
+    .sup-banner-deliv { background: #dbeafe; border: 1px solid #60a5fa; color: #1e3a8a; padding: 9px 11px; border-radius: 8px; font-size: 12.5px; font-weight: 600; margin-bottom: 10px; line-height: 1.4; }
+    .sup-tag-deliv { display: inline-block; background: #1d4ed8; color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; }
+    .sup-group { background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 13px; margin-bottom: 14px; box-shadow: 0 1px 5px rgba(15,23,42,0.05); }
+    .sup-group-hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+    .sup-group-title { font-size: 14px; font-weight: 700; color: #0f172a; line-height: 1.3; }
+    .sup-group-sub { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 2px; }
+    .sup-group-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sup-item-row { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 11px; margin-bottom: 8px; background: #f8fafc; }
+    .sup-item-row:last-child { margin-bottom: 0; }
+    .sup-item-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .sup-sku { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; font-weight: 700; background: #e2e8f0; color: #1e293b; padding: 2px 6px; border-radius: 5px; }
+    .sup-st { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 5px; }
+    .sup-st.ord { background: #fef9c3; color: #854d0e; }
+    .sup-st.ship { background: #dbeafe; color: #1d4ed8; }
+    .sup-st.pend { background: #e2e8f0; color: #334155; }
+    .sup-st.done { background: #dcfce7; color: #166534; }
+    .sup-st.canc { background: #f1f5f9; color: #64748b; }
+    .sup-name { font-size: 13.5px; font-weight: 700; color: #0f172a; line-height: 1.35; margin-bottom: 4px; }
+    .sup-meta { font-size: 12px; color: #475569; line-height: 1.4; margin-bottom: 6px; }
+    .sup-note { font-size: 11.5px; color: #64748b; line-height: 1.35; margin-bottom: 8px; }
+    .sup-mini-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm { padding: 7px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #334155; }
+    .btn-sm.ok { background: #16a34a; color: #fff; border-color: #16a34a; }
+    .btn-sm.blue { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .btn-sm.warn { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+    .btn-sm.danger { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
   </style>
 </head>
 <body>
@@ -142,13 +180,17 @@
           Purchases <span id="pillPurchases" class="tab-pill">0</span>
         </button>
         <button id="tabBtnGov" class="seg-btn" onclick="switchTab('gov')">
-          Governance <span id="pillGov" class="tab-pill">0</span>
+          Gov <span id="pillGov" class="tab-pill">0</span>
         </button>
         <button id="tabBtnOps" class="seg-btn" onclick="switchTab('ops')">
-          Ops Tasks <span id="pillOps" class="tab-pill">0</span>
+          Ops <span id="pillOps" class="tab-pill">0</span>
+        </button>
+        <button id="tabBtnSupplies" class="seg-btn" onclick="switchTab('supplies')">
+          Supplies <span id="pillSupplies" class="tab-pill">0</span>
         </button>
       </div>
 
+      <!-- TAB 1: PURCHASES -->
       <div id="panePurchases">
         <div class="actions-bar">
           <label class="btn-action btn-scan">
@@ -160,6 +202,7 @@
         <div id="cardsContainer"></div>
       </div>
 
+      <!-- TAB 2: GOVERNANCE -->
       <div id="paneGov" style="display:none;">
         <div class="cap-grid">
           <div class="cap-tile">
@@ -223,6 +266,8 @@
         <div id="govPendingContainer"></div>
         <div id="govExecutedSection"></div>
       </div>
+
+      <!-- TAB 3: OPS TASKS -->
       <div id="paneOps" style="display:none;">
         <div class="ops-subnav">
           <button id="btnOpsTodo" class="ops-subbtn active" onclick="switchOpsView('todo')">To Do</button>
@@ -240,6 +285,93 @@
           </div>
         </div>
       </div>
+
+      <!-- TAB 4: SUPPLIES & FULFILLMENT LOGISTICS -->
+      <div id="paneSupplies" style="display:none;">
+        <div class="cap-grid">
+          <div class="cap-tile">
+            <div class="cap-lbl">Action Needed</div>
+            <div id="supStatAction" class="cap-val">0</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">In Flight</div>
+            <div id="supStatFlight" class="cap-val">0</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">To Order</div>
+            <div id="supStatPending" class="cap-val">0</div>
+          </div>
+          <div class="cap-tile">
+            <div class="cap-lbl">Verified</div>
+            <div id="supStatDone" class="cap-val debt-zero">0</div>
+          </div>
+        </div>
+
+        <div class="actions-bar">
+          <button class="btn-action btn-scan" onclick="toggleNewSupplyForm()">+ Add Supply</button>
+          <button class="btn-action" onclick="loadSupplies()">Refresh</button>
+        </div>
+
+        <div id="newSupplyCard" class="card" style="display:none;">
+          <div class="gov-title" style="margin-bottom:12px;">Add Supply Need (Pending Order)</div>
+          <div class="field">
+            <label>Item / Part Name</label>
+            <input type="text" id="newSupName" placeholder="e.g. 1/4-20 SS Socket Head Cap Screws (50-Pk)">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Supplier</label>
+              <input type="text" id="newSupVendor" placeholder="e.g. McMaster-Carr">
+            </div>
+            <div class="field">
+              <label>Supplier Domain (Optional)</label>
+              <input type="text" id="newSupDomain" placeholder="e.g. mcmaster.com">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>SKU / Part #</label>
+              <input type="text" id="newSupSku" placeholder="e.g. 92196A542">
+            </div>
+            <div class="field">
+              <label>Quantity</label>
+              <input type="text" id="newSupQty" value="1">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Expected Net Price (USD)</label>
+              <input type="number" step="0.01" id="newSupPrice" placeholder="0.00" value="0.00">
+            </div>
+            <div class="field">
+              <label>Project / Cart Group</label>
+              <input type="text" id="newSupGroup" value="SwimWinch V2 — Ad-Hoc">
+            </div>
+          </div>
+          <div class="field">
+            <label>Spec / Promo / Checkout Notes</label>
+            <textarea id="newSupNotes" placeholder="Optional engineering role, cut length, or promo code"></textarea>
+          </div>
+          <div class="card-btns">
+            <button class="btn-verify" onclick="submitNewSupply()">Save as Pending Order</button>
+            <button class="btn-ignore" onclick="toggleNewSupplyForm()">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sup-subnav">
+          <button id="btnSupAction" class="sup-subbtn active" onclick="switchSupView('action', true)">Action (0)</button>
+          <button id="btnSupFlight" class="sup-subbtn" onclick="switchSupView('inflight', true)">In Flight (0)</button>
+          <button id="btnSupOrder" class="sup-subbtn" onclick="switchSupView('toorder', true)">To Order (0)</button>
+          <button id="btnSupDone" class="sup-subbtn" onclick="switchSupView('done', true)">Done (0)</button>
+        </div>
+
+        <input type="search" id="supSearchInput" class="sup-search" placeholder="Filter by supplier, SKU, item, or order #..." oninput="renderSuppliesFromCache()">
+
+        <div id="supActionContainer"></div>
+        <div id="supInFlightContainer" style="display:none;"></div>
+        <div id="supToOrderContainer" style="display:none;"></div>
+        <div id="supDoneContainer" style="display:none;"></div>
+      </div>
     </div>
   </div>
 
@@ -254,8 +386,14 @@
     var pendingPurchaseCount = 0;
     var pendingGovCount = 0;
     var pendingOpsCount = 0;
+    var pendingSuppliesCount = 0;
+    var suppliesAttentionCount = 0;
     var cachedOpsIndex = [];
     var stagedOpsFiles = {};
+    var cachedSuppliesSnap = null;
+    var supSubView = "action";
+    var supUserPickedView = false;
+    var supBatchRegistry = {};
 
     function fmtUsd(val) {
       var n = Number(val || 0);
@@ -342,11 +480,11 @@
         });
     }
 
-function refreshTopBadges() {
-      var total = pendingPurchaseCount + pendingGovCount + pendingOpsCount;
+    function refreshTopBadges() {
+      var total = pendingPurchaseCount + pendingGovCount + pendingOpsCount + pendingSuppliesCount;
       var qb = document.getElementById("queueBadge");
       qb.textContent = total === 0 ? "All Clear" : (total + " Pending");
-      qb.className = total === 0 ? "badge ok" : "badge";
+      qb.className = total === 0 ? "badge ok" : (suppliesAttentionCount > 0 ? "badge alert" : "badge");
 
       var pPill = document.getElementById("pillPurchases");
       pPill.textContent = String(pendingPurchaseCount);
@@ -361,28 +499,47 @@ function refreshTopBadges() {
         oPill.textContent = String(pendingOpsCount);
         oPill.className = pendingOpsCount > 0 ? "tab-pill warn" : "tab-pill";
       }
+
+      var sPill = document.getElementById("pillSupplies");
+      if (sPill) {
+        sPill.textContent = String(pendingSuppliesCount);
+        sPill.className = suppliesAttentionCount > 0
+          ? "tab-pill urgent"
+          : (pendingSuppliesCount > 0 ? "tab-pill warn" : "tab-pill");
+      }
     }
 
     function switchTab(tab) {
-      activeTab = (tab === "gov" || tab === "ops") ? tab : "purchases";
+      if (tab === "gov" || tab === "ops" || tab === "supplies") {
+        activeTab = tab;
+      } else {
+        activeTab = "purchases";
+      }
       document.getElementById("tabBtnPurchases").className = activeTab === "purchases" ? "seg-btn active" : "seg-btn";
       document.getElementById("tabBtnGov").className = activeTab === "gov" ? "seg-btn active" : "seg-btn";
       document.getElementById("tabBtnOps").className = activeTab === "ops" ? "seg-btn active" : "seg-btn";
+      document.getElementById("tabBtnSupplies").className = activeTab === "supplies" ? "seg-btn active" : "seg-btn";
+
       document.getElementById("panePurchases").style.display = activeTab === "purchases" ? "block" : "none";
       document.getElementById("paneGov").style.display = activeTab === "gov" ? "block" : "none";
       document.getElementById("paneOps").style.display = activeTab === "ops" ? "block" : "none";
+      document.getElementById("paneSupplies").style.display = activeTab === "supplies" ? "block" : "none";
     }
 
     function detectInitialTab() {
       var h = String(window.location.hash || "").toLowerCase();
       var s = String(window.location.search || "").toLowerCase();
-      if (h.indexOf("ops") !== -1 || s.indexOf("tab=ops") !== -1) {
+      if (h.indexOf("sup") !== -1 || s.indexOf("tab=supplies") !== -1) {
+        supUserPickedView = false;
+        switchTab("supplies");
+      } else if (h.indexOf("ops") !== -1 || s.indexOf("tab=ops") !== -1) {
         switchTab("ops");
       } else if (h.indexOf("gov") !== -1 || s.indexOf("tab=gov") !== -1) {
         switchTab("gov");
       }
     }
     window.addEventListener("hashchange", detectInitialTab);
+
     function initApp() {
       detectInitialTab();
       if (!localStorage.getItem("MK_API_URL") || !localStorage.getItem("MK_API_SECRET")) {
@@ -394,19 +551,22 @@ function refreshTopBadges() {
       document.getElementById("newGovDate").value = todayIso();
       showStatus("Syncing Manifest Ops queues...");
 
-      Promise.all([callApi("boot"), callApi("govList"), callApi("opsList")])
+      Promise.all([callApi("boot"), callApi("govList"), callApi("opsList"), callApi("supList")])
         .then(function(results) {
           var bootData = results[0] || {};
           var govSnap = results[1] || {};
           var opsSnap = results[2] || {};
+          var supSnap = results[3] || {};
           CATEGORIES = bootData.categories || [];
           if (bootData.cardOptions && bootData.cardOptions.length) CARD_OPTIONS = bootData.cardOptions;
           updateNotifyLabel(bootData.notificationsEnabled, bootData.hasPushConfig !== false);
           renderItems(bootData.items || []);
           renderGov(govSnap);
           renderOps(opsSnap);
+          renderSupplies(supSnap);
           if (!window.location.hash && !window.location.search) {
-            if (pendingPurchaseCount === 0 && pendingGovCount > 0) switchTab("gov");
+            if (pendingPurchaseCount === 0 && pendingSuppliesCount > 0) switchTab("supplies");
+            else if (pendingPurchaseCount === 0 && pendingGovCount > 0) switchTab("gov");
             else if (pendingPurchaseCount === 0 && pendingOpsCount > 0) switchTab("ops");
           }
           showStatus("");
@@ -416,6 +576,7 @@ function refreshTopBadges() {
           if (String(err.message).indexOf("API_SECRET") !== -1) openSetup();
         });
     }
+
     function loadQueue() {
       showStatus("Refreshing purchases...");
       callApi("list")
@@ -485,11 +646,6 @@ function refreshTopBadges() {
           var cancelLbl = isCancel ? "Cancellation Proof PDF &rarr;" : "Cancel / Refund File &rarr;";
           receiptLinks.push(
             "<a class='receipt-link cancel-proof' href='" + escapeAttr(it.cancelReceiptUrl) + "' target='_blank' rel='noopener'>" + cancelLbl + "</a>"
-          );
-        }
-        if (isCancel && it.cancelReceiptUrl && it.cancelReceiptUrl !== it.receiptUrl) {
-          receiptLinks.push(
-            "<a class='receipt-link cancel-proof' href='" + escapeAttr(it.cancelReceiptUrl) + "' target='_blank' rel='noopener'>Cancellation Proof PDF &rarr;</a>"
           );
         }
         var receiptHtml = receiptLinks.length > 0
@@ -670,17 +826,17 @@ function refreshTopBadges() {
         note: note,
         signNow: signNow
       })
-      .then(function(snap) {
-        document.getElementById("newGovAmt").value = "0.00";
-        document.getElementById("newGovNote").value = "";
-        document.getElementById("newConsentCard").style.display = "none";
-        renderGov(snap);
-        showStatus(signNow ? "Consent executed & archived in Drive." : "Consent staged to queue.");
-        setTimeout(function() { showStatus(""); }, 3500);
-      })
-      .catch(function(err) {
-        showStatus("Create error: " + err.message);
-      });
+        .then(function(snap) {
+          document.getElementById("newGovAmt").value = "0.00";
+          document.getElementById("newGovNote").value = "";
+          document.getElementById("newConsentCard").style.display = "none";
+          renderGov(snap);
+          showStatus(signNow ? "Consent executed & archived in Drive." : "Consent staged to queue.");
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) {
+          showStatus("Create error: " + err.message);
+        });
     }
 
     function applyPartialNetCost(id, netCost) {
@@ -719,10 +875,11 @@ function refreshTopBadges() {
         .then(function(items) {
           showStatus("");
           renderItems(items || []);
-          return callApi("govList");
+          return Promise.all([callApi("govList"), callApi("supList")]);
         })
-        .then(function(snap) {
-          if (snap) renderGov(snap);
+        .then(function(snaps) {
+          if (snaps && snaps[0]) renderGov(snaps[0]);
+          if (snaps && snaps[1]) renderSupplies(snaps[1]);
         })
         .catch(function(err) {
           cardEl.style.opacity = "1";
@@ -775,7 +932,14 @@ function refreshTopBadges() {
 
     function sendUploadToServer(base64, mimeType, fileName) {
       callApi("upload", { base64Data: base64, mimeType: mimeType, fileName: fileName })
-        .then(function(items) { showStatus(""); renderItems(items || []); })
+        .then(function(items) {
+          showStatus("");
+          renderItems(items || []);
+          return callApi("supList");
+        })
+        .then(function(supSnap) {
+          if (supSnap) renderSupplies(supSnap);
+        })
         .catch(function(err) { showStatus("Upload failed: " + err.message); });
     }
 
@@ -785,7 +949,9 @@ function refreshTopBadges() {
     function escapeAttr(str) {
       return escapeHtml(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
-var opsSubView = "todo";
+
+    /* ==================== OPS TASKS MODULE ==================== */
+    var opsSubView = "todo";
 
     function switchOpsView(view) {
       opsSubView = view === "inventory" ? "inventory" : "todo";
@@ -847,7 +1013,7 @@ var opsSubView = "todo";
               if (linksArr[l].auditMeta) auditMeta = linksArr[l].auditMeta;
               if (linksArr[l].url) {
                 btns += "<a class='ops-link-btn' href='" + escapeAttr(linksArr[l].url) + "' target='_blank' rel='noopener'>" +
-                  escapeHtml(linksArr[l].label || "Open Link") + " &nearr;</a>";
+                        escapeHtml(linksArr[l].label || "Open Link") + " &nearr;</a>";
               }
             }
             if (btns) linksHtml = "<div class='ops-links'>" + btns + "</div>";
@@ -1025,10 +1191,12 @@ var opsSubView = "todo";
             canvas.width = w; canvas.height = h;
             canvas.getContext("2d").drawImage(img, 0, 0, w, h);
             var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+            var dotIdx = file.name.lastIndexOf(".");
+            var cleanBase = dotIdx > 0 ? file.name.substring(0, dotIdx) : file.name;
             stagedOpsFiles[taskId] = {
               base64Data: dataUrl.split(",")[1],
               mimeType: "image/jpeg",
-              fileName: file.name.replace(/\.[^.]+$/, "") + ".jpg"
+              fileName: cleanBase + ".jpg"
             };
             if (lbl) lbl.textContent = "Attached: " + stagedOpsFiles[taskId].fileName;
           };
@@ -1117,6 +1285,531 @@ var opsSubView = "todo";
           showStatus("Apply error: " + err.message);
         });
     }
+
+    /* ==================== SUPPLIES & FULFILLMENT MODULE ==================== */
+    function switchSupView(view, manualTap) {
+      if (manualTap) supUserPickedView = true;
+      if (view === "inflight" || view === "toorder" || view === "done") {
+        supSubView = view;
+      } else {
+        supSubView = "action";
+      }
+      document.getElementById("btnSupAction").className = supSubView === "action" ? "sup-subbtn active" : "sup-subbtn";
+      document.getElementById("btnSupFlight").className = supSubView === "inflight" ? "sup-subbtn active" : "sup-subbtn";
+      document.getElementById("btnSupOrder").className = supSubView === "toorder" ? "sup-subbtn active" : "sup-subbtn";
+      document.getElementById("btnSupDone").className = supSubView === "done" ? "sup-subbtn active" : "sup-subbtn";
+
+      document.getElementById("supActionContainer").style.display = supSubView === "action" ? "block" : "none";
+      document.getElementById("supInFlightContainer").style.display = supSubView === "inflight" ? "block" : "none";
+      document.getElementById("supToOrderContainer").style.display = supSubView === "toorder" ? "block" : "none";
+      document.getElementById("supDoneContainer").style.display = supSubView === "done" ? "block" : "none";
+    }
+
+    function loadSupplies() {
+      showStatus("Refreshing Supplies logistics...");
+      callApi("supList")
+        .then(function(snap) { showStatus(""); renderSupplies(snap || {}); })
+        .catch(function(err) { showStatus("Supplies error: " + err.message); });
+    }
+
+    function toggleNewSupplyForm() {
+      var el = document.getElementById("newSupplyCard");
+      el.style.display = el.style.display === "none" ? "block" : "none";
+    }
+
+    function submitNewSupply() {
+      var nameVal = document.getElementById("newSupName").value.trim();
+      if (!nameVal) {
+        showStatus("Enter an Item / Part Name first.");
+        return;
+      }
+      var payload = {
+        itemName: nameVal,
+        supplier: document.getElementById("newSupVendor").value.trim() || "TBD",
+        supplierDomain: document.getElementById("newSupDomain").value.trim(),
+        sku: document.getElementById("newSupSku").value.trim(),
+        qty: document.getElementById("newSupQty").value.trim() || "1",
+        expectedNetPrice: parseFloat(document.getElementById("newSupPrice").value || "0") || 0,
+        cartGroup: document.getElementById("newSupGroup").value.trim() || "SwimWinch V2 — Ad-Hoc",
+        specNotes: document.getElementById("newSupNotes").value.trim()
+      };
+      showStatus("Adding supply item to Pending Order Placement...");
+      callApi("supAdd", { payload: payload })
+        .then(function(snap) {
+          document.getElementById("newSupName").value = "";
+          document.getElementById("newSupSku").value = "";
+          document.getElementById("newSupQty").value = "1";
+          document.getElementById("newSupPrice").value = "0.00";
+          document.getElementById("newSupNotes").value = "";
+          document.getElementById("newSupplyCard").style.display = "none";
+          supSubView = "toorder";
+          supUserPickedView = true;
+          renderSupplies(snap);
+          showStatus("Added " + (snap.createdSupplyId || "new item") + " as Pending Order Placement.");
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) { showStatus("Add supply error: " + err.message); });
+    }
+
+    function matchesSupplyQuery(it, q) {
+      if (!q) return true;
+      var hay = [
+        it.supplyId, it.status, it.cartGroup, it.supplier, it.sku,
+        it.itemName, it.orderNumber, it.carrierTracking, it.alertNote
+      ].join(" ").toLowerCase();
+      return hay.indexOf(q) !== -1;
+    }
+
+    function renderSuppliesFromCache() {
+      if (cachedSuppliesSnap) renderSupplies(cachedSuppliesSnap);
+    }
+
+    function registerSupBatch(ids, idxCounter) {
+      var key = "b_" + idxCounter.n++;
+      supBatchRegistry[key] = ids;
+      return key;
+    }
+
+    function renderSupplies(snap) {
+      cachedSuppliesSnap = snap || {};
+      supBatchRegistry = {};
+      var batchSeq = { n: 1 };
+
+      var counts = snap.counts || {};
+      var actionAll = snap.actionItems || [];
+      var flightAll = snap.inFlightItems || [];
+      var pendingAll = snap.pendingOrderItems || [];
+      var histAll = snap.recentHistory || [];
+
+      pendingSuppliesCount = Number(counts.actionNeeded || 0);
+      suppliesAttentionCount = Number(counts.needsAttention || 0);
+      refreshTopBadges();
+
+      var actEl = document.getElementById("supStatAction");
+      actEl.textContent = String(pendingSuppliesCount);
+      actEl.className = suppliesAttentionCount > 0 ? "cap-val alert-red" : "cap-val";
+      document.getElementById("supStatFlight").textContent = String(counts.inFlight || 0);
+      document.getElementById("supStatPending").textContent =
+        String(counts.pendingOrder || 0) + (counts.pendingOrder > 0 ? (" • " + fmtUsd(counts.pendingOrderNetUsd)) : "");
+      document.getElementById("supStatDone").textContent = String(counts.verifiedDelivered || 0);
+
+      document.getElementById("btnSupAction").textContent = "Action (" + pendingSuppliesCount + ")";
+      document.getElementById("btnSupFlight").textContent = "In Flight (" + (counts.inFlight || 0) + ")";
+      document.getElementById("btnSupOrder").textContent = "To Order (" + (counts.pendingOrder || 0) + ")";
+      document.getElementById("btnSupDone").textContent = "Done (" + (counts.verifiedDelivered || 0) + ")";
+
+      if (!supUserPickedView) {
+        if (actionAll.length > 0) supSubView = "action";
+        else if (flightAll.length > 0) supSubView = "inflight";
+        else supSubView = "toorder";
+      } else if (actionAll.length > 0 && String(window.location.hash || "").toLowerCase().indexOf("sup") !== -1) {
+        supSubView = "action";
+      }
+
+      var q = String((document.getElementById("supSearchInput") || {}).value || "").trim().toLowerCase();
+      var actionList = actionAll.filter(function(x) { return matchesSupplyQuery(x, q); });
+      var flightList = flightAll.filter(function(x) { return matchesSupplyQuery(x, q); });
+      var pendingList = pendingAll.filter(function(x) { return matchesSupplyQuery(x, q); });
+      var histList = histAll.filter(function(x) { return matchesSupplyQuery(x, q); });
+
+      renderSuppliesActionPane(actionList, batchSeq);
+      renderSuppliesFlightPane(flightList, batchSeq);
+      renderSuppliesPendingPane(pendingList, batchSeq);
+      renderSuppliesDonePane(histList);
+      switchSupView(supSubView, false);
+    }
+
+    function buildSupplyLogisticsLine(it) {
+      var parts = [];
+      parts.push("Qty: <strong>" + escapeHtml(it.qty || "1") + "</strong>");
+      if (it.expectedNetPrice > 0) parts.push(escapeHtml(fmtUsd(it.expectedNetPrice)));
+      if (it.orderNumber) parts.push("Order: <strong>" + escapeHtml(it.orderNumber) + "</strong>");
+      if (it.expectedDelivery) parts.push("ETA: <strong>" + escapeHtml(it.expectedDelivery) + "</strong>");
+      if (it.carrierTracking) parts.push("Track: " + escapeHtml(it.carrierTracking));
+      return parts.join(" &bull; ");
+    }
+
+    function renderSuppliesActionPane(items, batchSeq) {
+      var wrap = document.getElementById("supActionContainer");
+      wrap.innerHTML = "";
+      if (items.length === 0) {
+        wrap.innerHTML = "<div class='empty'><h3>Zero Supply Obstructions</h3><p>No backorders, delays, or unverified deliveries require your attention right now.</p></div>";
+        return;
+      }
+
+      var attnItems = [];
+      var delivGroups = {};
+      var delivOrder = [];
+
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        if (it.status === "Needs Attention") {
+          attnItems.push(it);
+        } else {
+          var gKey = (it.supplier || "Supplier") + "||" + (it.orderNumber || "No-Order");
+          if (!delivGroups[gKey]) {
+            delivGroups[gKey] = { supplier: it.supplier || "Supplier", orderNumber: it.orderNumber || "", items: [] };
+            delivOrder.push(gKey);
+          }
+          delivGroups[gKey].items.push(it);
+        }
+      }
+
+      // 1) Needs Attention Cards (2.3)
+      for (var a = 0; a < attnItems.length; a++) {
+        var at = attnItems[a];
+        var card = document.createElement("div");
+        card.className = "card sup-card-attn";
+        card.id = "supcard-" + at.supplyId;
+        var skuHtml = at.sku ? ("<span class='sup-sku'>" + escapeHtml(at.sku) + "</span>") : "";
+        card.innerHTML =
+          "<div class='cancel-banner'>" +
+            "<div class='cancel-tag'>Needs Attention &bull; " + escapeHtml(at.supplyId) + "</div>" +
+            "<div>" + escapeHtml(at.alertNote || "Order fulfillment delay or issue flagged.") + "</div>" +
+          "</div>" +
+          "<div class='sup-item-top'>" +
+            "<strong>" + escapeHtml(at.supplier) + "</strong>" +
+            skuHtml +
+          "</div>" +
+          "<div class='sup-name'>" + escapeHtml(at.itemName) + "</div>" +
+          "<div class='sup-meta'>" + buildSupplyLogisticsLine(at) + "</div>" +
+          "<div class='sup-mini-btns'>" +
+            "<button class='btn-sm ok' onclick=\"verifySingleSupply('" + escapeAttr(at.supplyId) + "')\">Verify Delivered</button>" +
+            "<button class='btn-sm blue' onclick=\"clearSupplyAttention('" + escapeAttr(at.supplyId) + "')\">Clear Alert (In Transit)</button>" +
+            "<button class='btn-sm danger' onclick=\"cancelSingleSupply('" + escapeAttr(at.supplyId) + "')\">Cancel Supply</button>" +
+          "</div>";
+        wrap.appendChild(card);
+      }
+
+      // 2) Delivered — Verify Clusters (2.4)
+      for (var g = 0; g < delivOrder.length; g++) {
+        var grp = delivGroups[delivOrder[g]];
+        var ids = grp.items.map(function(x) { return x.supplyId; });
+        var bKey = registerSupBatch(ids, batchSeq);
+        var box = document.createElement("div");
+        box.className = "card sup-card-deliv";
+
+        var hdrBtn = ids.length > 1
+          ? ("<button class='btn-verify' style='width:100%;margin-bottom:10px;padding:11px;' onclick=\"verifySupplyBatch('" + bKey + "')\">Verify All " + ids.length + " Items Delivered (" + escapeHtml(grp.supplier) + ")</button>")
+          : "";
+
+        var rowsHtml = "";
+        for (var k = 0; k < grp.items.length; k++) {
+          var dIt = grp.items[k];
+          var dSku = dIt.sku ? ("<span class='sup-sku'>" + escapeHtml(dIt.sku) + "</span>") : "";
+          rowsHtml +=
+            "<div class='sup-item-row' id='supcard-" + escapeAttr(dIt.supplyId) + "'>" +
+              "<div class='sup-item-top'>" +
+                "<span class='gov-meta'>" + escapeHtml(dIt.supplyId) + "</span>" +
+                dSku +
+              "</div>" +
+              "<div class='sup-name'>" + escapeHtml(dIt.itemName) + "</div>" +
+              "<div class='sup-meta'>" + buildSupplyLogisticsLine(dIt) + "</div>" +
+              "<div class='sup-mini-btns'>" +
+                "<button class='btn-sm ok' onclick=\"verifySingleSupply('" + escapeAttr(dIt.supplyId) + "')\">Verify Delivered</button>" +
+                "<button class='btn-sm warn' onclick=\"flagSupplyAttention('" + escapeAttr(dIt.supplyId) + "')\">Missing / Issue</button>" +
+                "<button class='btn-sm danger' onclick=\"cancelSingleSupply('" + escapeAttr(dIt.supplyId) + "')\">Cancel</button>" +
+              "</div>" +
+            "</div>";
+        }
+
+        var bannerMsg = grp.items[0].alertNote || "Supplier/carrier reported delivery — confirm physical receipt.";
+        box.innerHTML =
+          "<div class='sup-banner-deliv'>" +
+            "<div class='sup-tag-deliv'>Confirm Physical Delivery &bull; " + escapeHtml(grp.supplier) + (grp.orderNumber ? (" &bull; Order " + escapeHtml(grp.orderNumber)) : "") + "</div>" +
+            "<div>" + escapeHtml(bannerMsg) + "</div>" +
+          "</div>" +
+          hdrBtn +
+          rowsHtml;
+        wrap.appendChild(box);
+      }
+    }
+
+    function renderSuppliesFlightPane(items, batchSeq) {
+      var wrap = document.getElementById("supInFlightContainer");
+      wrap.innerHTML = "";
+      if (items.length === 0) {
+        wrap.innerHTML = "<div class='empty'><h3>No Shipments In Flight</h3><p>Placed orders awaiting shipping or delivery confirmation will appear here.</p></div>";
+        return;
+      }
+
+      var groups = {};
+      var orderKeys = [];
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var gKey = (it.supplier || "Supplier") + "||" + (it.orderNumber || it.cartGroup || "Active");
+        if (!groups[gKey]) {
+          groups[gKey] = {
+            supplier: it.supplier || "Supplier",
+            orderNumber: it.orderNumber || "",
+            expectedDelivery: it.expectedDelivery || "",
+            carrierTracking: it.carrierTracking || "",
+            items: []
+          };
+          orderKeys.push(gKey);
+        }
+        groups[gKey].items.push(it);
+      }
+
+      for (var g = 0; g < orderKeys.length; g++) {
+        var grp = groups[orderKeys[g]];
+        var ids = grp.items.map(function(x) { return x.supplyId; });
+        var bKey = registerSupBatch(ids, batchSeq);
+        var subParts = [grp.items.length + " SKU" + (grp.items.length > 1 ? "s" : "")];
+        if (grp.orderNumber) subParts.push("Order " + grp.orderNumber);
+        if (grp.expectedDelivery) subParts.push("ETA: " + grp.expectedDelivery);
+
+        var rowsHtml = "";
+        for (var r = 0; r < grp.items.length; r++) {
+          var fIt = grp.items[r];
+          var stCls = fIt.status === "Shipped / In Transit" ? "sup-st ship" : "sup-st ord";
+          var skuHtml = fIt.sku ? ("<span class='sup-sku'>" + escapeHtml(fIt.sku) + "</span>") : "";
+          rowsHtml +=
+            "<div class='sup-item-row' id='supcard-" + escapeAttr(fIt.supplyId) + "'>" +
+              "<div class='sup-item-top'>" +
+                "<span class='" + stCls + "'>" + escapeHtml(fIt.status) + "</span>" +
+                skuHtml +
+              "</div>" +
+              "<div class='sup-name'>" + escapeHtml(fIt.itemName) + "</div>" +
+              "<div class='sup-meta'>" + buildSupplyLogisticsLine(fIt) + "</div>" +
+              "<div class='sup-mini-btns'>" +
+                "<button class='btn-sm ok' onclick=\"verifySingleSupply('" + escapeAttr(fIt.supplyId) + "')\">Verify Received</button>" +
+                "<button class='btn-sm warn' onclick=\"flagSupplyAttention('" + escapeAttr(fIt.supplyId) + "')\">Flag Issue</button>" +
+                "<button class='btn-sm danger' onclick=\"cancelSingleSupply('" + escapeAttr(fIt.supplyId) + "')\">Cancel</button>" +
+              "</div>" +
+            "</div>";
+        }
+
+        var div = document.createElement("div");
+        div.className = "sup-group";
+        div.innerHTML =
+          "<div class='sup-group-hdr'>" +
+            "<div>" +
+              "<div class='sup-group-title'>" + escapeHtml(grp.supplier) + "</div>" +
+              "<div class='sup-group-sub'>" + escapeHtml(subParts.join(" • ")) + "</div>" +
+            "</div>" +
+            "<div class='sup-group-btns'>" +
+              "<button class='btn-sm ok' onclick=\"verifySupplyBatch('" + bKey + "')\">Verify All Received (" + ids.length + ")</button>" +
+            "</div>" +
+          "</div>" +
+          rowsHtml;
+        wrap.appendChild(div);
+      }
+    }
+
+    function renderSuppliesPendingPane(items, batchSeq) {
+      var wrap = document.getElementById("supToOrderContainer");
+      wrap.innerHTML = "";
+      if (items.length === 0) {
+        wrap.innerHTML = "<div class='empty'><h3>All Planned Supplies Ordered</h3><p>Tap + Add Supply above whenever a new hardware or shop supply need comes up.</p></div>";
+        return;
+      }
+
+      var groups = {};
+      var groupKeys = [];
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var gKey = it.cartGroup || it.supplier || "Pending Supplies";
+        if (!groups[gKey]) {
+          groups[gKey] = { title: gKey, supplier: it.supplier || "", subtotalCents: 0, items: [] };
+          groupKeys.push(gKey);
+        }
+        groups[gKey].subtotalCents += Math.round((Number(it.expectedNetPrice) || 0) * 100);
+        groups[gKey].items.push(it);
+      }
+
+      for (var g = 0; g < groupKeys.length; g++) {
+        var grp = groups[groupKeys[g]];
+        var ids = grp.items.map(function(x) { return x.supplyId; });
+        var bKey = registerSupBatch(ids, batchSeq);
+
+        var rowsHtml = "";
+        for (var r = 0; r < grp.items.length; r++) {
+          var pIt = grp.items[r];
+          var skuHtml = pIt.sku ? ("<span class='sup-sku'>" + escapeHtml(pIt.sku) + "</span>") : "";
+          var noteLines = [];
+          if (pIt.promoRule) noteLines.push("<strong>Checkout:</strong> " + escapeHtml(pIt.promoRule));
+          if (pIt.specNotes) noteLines.push(escapeHtml(pIt.specNotes));
+
+          rowsHtml +=
+            "<div class='sup-item-row' id='supcard-" + escapeAttr(pIt.supplyId) + "'>" +
+              "<div class='sup-item-top'>" +
+                "<span class='gov-meta'>" + escapeHtml(pIt.supplyId + " • " + pIt.supplier) + "</span>" +
+                skuHtml +
+              "</div>" +
+              "<div class='sup-name'>" + escapeHtml(pIt.itemName) + "</div>" +
+              "<div class='sup-meta'>Qty: <strong>" + escapeHtml(pIt.qty) + "</strong> &bull; Est. Net: <strong>" + escapeHtml(fmtUsd(pIt.expectedNetPrice)) + "</strong></div>" +
+              (noteLines.length ? ("<div class='sup-note'>" + noteLines.join("<br>") + "</div>") : "") +
+              "<div class='sup-mini-btns'>" +
+                "<button class='btn-sm blue' onclick=\"markSingleSupplyOrdered('" + escapeAttr(pIt.supplyId) + "')\">Mark Ordered</button>" +
+                "<button class='btn-sm danger' onclick=\"cancelSingleSupply('" + escapeAttr(pIt.supplyId) + "')\">Cancel</button>" +
+              "</div>" +
+            "</div>";
+        }
+
+        var div = document.createElement("div");
+        div.className = "sup-group";
+        div.innerHTML =
+          "<div class='sup-group-hdr'>" +
+            "<div>" +
+              "<div class='sup-group-title'>" + escapeHtml(grp.title) + "</div>" +
+              "<div class='sup-group-sub'>" + grp.items.length + " SKU" + (grp.items.length > 1 ? "s" : "") + " &bull; Net Merch: " + escapeHtml(fmtUsd(grp.subtotalCents / 100)) + "</div>" +
+            "</div>" +
+            "<div class='sup-group-btns'>" +
+              "<button class='btn-sm blue' onclick=\"markSupplyBatchOrdered('" + bKey + "')\">Mark Cart Ordered</button>" +
+              "<button class='btn-sm danger' onclick=\"cancelSupplyBatch('" + bKey + "')\">Cancel Cart</button>" +
+            "</div>" +
+          "</div>" +
+          rowsHtml;
+        wrap.appendChild(div);
+      }
+    }
+
+    function renderSuppliesDonePane(items) {
+      var wrap = document.getElementById("supDoneContainer");
+      wrap.innerHTML = "";
+      if (items.length === 0) {
+        wrap.innerHTML = "<div class='empty'><h3>No Completed History Yet</h3><p>Verified deliveries and cancelled supplies are logged here.</p></div>";
+        return;
+      }
+
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var isVer = it.status === "Delivered (Verified)";
+        var stCls = isVer ? "sup-st done" : "sup-st canc";
+        var stampTxt = isVer
+          ? ("Verified: " + (it.deliveredTimestamp || "Confirmed"))
+          : (it.alertNote || "Cancelled");
+        var div = document.createElement("div");
+        div.className = "exec-item";
+        div.innerHTML =
+          "<div class='sup-item-top'>" +
+            "<span class='" + stCls + "'>" + escapeHtml(it.status) + "</span>" +
+            "<span class='gov-meta'>" + escapeHtml(it.supplyId + " • " + it.supplier) + "</span>" +
+          "</div>" +
+          "<div class='sup-name'>" + escapeHtml(it.itemName) + "</div>" +
+          "<div class='sup-meta'>Qty: " + escapeHtml(it.qty) + (it.orderNumber ? (" &bull; Order: " + escapeHtml(it.orderNumber)) : "") + "</div>" +
+          "<div class='sup-note' style='margin-bottom:0;'>" + escapeHtml(stampTxt) + "</div>";
+        wrap.appendChild(div);
+      }
+    }
+
+    function verifySingleSupply(supplyId) {
+      var el = document.getElementById("supcard-" + supplyId);
+      if (el) { el.style.opacity = "0.5"; el.style.pointerEvents = "none"; }
+      showStatus("Confirming physical delivery of " + supplyId + "...");
+      callApi("supVerifyDelivery", { supplyId: supplyId })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Verified delivery of " + supplyId + ".");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) {
+          if (el) { el.style.opacity = "1"; el.style.pointerEvents = "auto"; }
+          showStatus("Verify error: " + err.message);
+        });
+    }
+
+    function verifySupplyBatch(batchKey) {
+      var ids = supBatchRegistry[batchKey] || [];
+      if (ids.length === 0) return;
+      if (ids.length > 1 && !window.confirm("Confirm physical delivery/receipt for all " + ids.length + " items in this order?")) return;
+      showStatus("Confirming delivery for " + ids.length + " item(s)...");
+      callApi("supVerifyDelivery", { supplyIds: ids })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Confirmed delivery of " + ids.length + " supply item(s).");
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) { showStatus("Batch verify error: " + err.message); });
+    }
+
+    function cancelSingleSupply(supplyId) {
+      var reason = window.prompt("Cancel " + supplyId + " — optional note/reason:", "Cancelled in Manifest Ops");
+      if (reason === null) return;
+      var el = document.getElementById("supcard-" + supplyId);
+      if (el) { el.style.opacity = "0.5"; el.style.pointerEvents = "none"; }
+      showStatus("Cancelling " + supplyId + "...");
+      callApi("supCancel", { supplyId: supplyId, note: reason })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Cancelled " + supplyId + ".");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) {
+          if (el) { el.style.opacity = "1"; el.style.pointerEvents = "auto"; }
+          showStatus("Cancel error: " + err.message);
+        });
+    }
+
+    function cancelSupplyBatch(batchKey) {
+      var ids = supBatchRegistry[batchKey] || [];
+      if (ids.length === 0) return;
+      var reason = window.prompt("Cancel all " + ids.length + " items in this cart? Enter optional reason:", "Cart cancelled in Manifest Ops");
+      if (reason === null) return;
+      showStatus("Cancelling " + ids.length + " supply item(s)...");
+      callApi("supCancel", { supplyIds: ids, note: reason })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Cancelled " + ids.length + " supply item(s).");
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) { showStatus("Batch cancel error: " + err.message); });
+    }
+
+    function markSingleSupplyOrdered(supplyId) {
+      var ord = window.prompt("Mark " + supplyId + " as Ordered — optional Order/Invoice # (leave blank for local counter pickup):", "");
+      if (ord === null) return;
+      showStatus("Marking " + supplyId + " as Ordered...");
+      callApi("supMarkOrdered", { supplyId: supplyId, orderNumber: ord.trim() })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Marked " + supplyId + " as Ordered.");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) { showStatus("Order update error: " + err.message); });
+    }
+
+    function markSupplyBatchOrdered(batchKey) {
+      var ids = supBatchRegistry[batchKey] || [];
+      if (ids.length === 0) return;
+      var ord = window.prompt("Mark all " + ids.length + " items in this cart as Ordered — optional Order # (note: emailed receipts also link automatically):", "");
+      if (ord === null) return;
+      showStatus("Marking " + ids.length + " item(s) as Ordered...");
+      callApi("supMarkOrdered", { supplyIds: ids, orderNumber: ord.trim() })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Marked " + ids.length + " item(s) as Ordered.");
+          setTimeout(function() { showStatus(""); }, 3500);
+        })
+        .catch(function(err) { showStatus("Batch order error: " + err.message); });
+    }
+
+    function flagSupplyAttention(supplyId) {
+      var issue = window.prompt("Describe the delivery or item issue for " + supplyId + ":", "Missing/damaged item or delayed shipment");
+      if (issue === null) return;
+      showStatus("Flagging " + supplyId + " as Needs Attention...");
+      callApi("supFlagAttention", { supplyId: supplyId, clearAttention: false, note: issue.trim() })
+        .then(function(snap) {
+          supSubView = "action";
+          renderSupplies(snap);
+          showStatus("Flagged " + supplyId + " for attention.");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) { showStatus("Flag error: " + err.message); });
+    }
+
+    function clearSupplyAttention(supplyId) {
+      showStatus("Clearing alert on " + supplyId + "...");
+      callApi("supFlagAttention", { supplyId: supplyId, clearAttention: true })
+        .then(function(snap) {
+          renderSupplies(snap);
+          showStatus("Cleared alert on " + supplyId + " (returned to active tracking).");
+          setTimeout(function() { showStatus(""); }, 3000);
+        })
+        .catch(function(err) { showStatus("Clear alert error: " + err.message); });
+    }
+
     window.onload = initApp;
   </script>
 </body>

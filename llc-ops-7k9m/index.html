@@ -474,14 +474,17 @@ function refreshTopBadges() {
 
         var receiptLinks = [];
         if (it.receiptUrl) {
-          var origLbl = "View Archived Receipt in Drive &rarr;";
-          if (isCancel) {
-            origLbl = (it.cancelReceiptUrl && it.cancelReceiptUrl === it.receiptUrl)
-              ? "Cancellation Proof PDF &rarr;"
-              : "Original Receipt &rarr;";
-          }
+          var origLbl = (isCancel || it.cancelReceiptUrl)
+            ? "Original Receipt &rarr;"
+            : "View Archived Receipt in Drive &rarr;";
           receiptLinks.push(
             "<a class='receipt-link' href='" + escapeAttr(it.receiptUrl) + "' target='_blank' rel='noopener'>" + origLbl + "</a>"
+          );
+        }
+        if (it.cancelReceiptUrl && it.cancelReceiptUrl !== it.receiptUrl) {
+          var cancelLbl = isCancel ? "Cancellation Proof PDF &rarr;" : "Cancel / Refund File &rarr;";
+          receiptLinks.push(
+            "<a class='receipt-link cancel-proof' href='" + escapeAttr(it.cancelReceiptUrl) + "' target='_blank' rel='noopener'>" + cancelLbl + "</a>"
           );
         }
         if (isCancel && it.cancelReceiptUrl && it.cancelReceiptUrl !== it.receiptUrl) {

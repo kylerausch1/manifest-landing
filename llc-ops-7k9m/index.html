@@ -89,6 +89,14 @@
     .ops-subbtn.active { background: #0f172a; color: #fff; border-color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,0.16); }
     .btn-audit-full { width: 100%; padding: 11px 12px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; margin-bottom: 14px; }
     .btn-audit-full:disabled { opacity: 0.6; cursor: not-allowed; }
+    .card.cancel-card { border: 2px solid #ef4444; background: #fffafb; }
+    .cancel-banner { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 12px; line-height: 1.45; }
+    .cancel-tag { display: inline-block; background: #991b1b; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 5px; margin-bottom: 6px; }
+    .receipt-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .receipt-row .receipt-link { margin-bottom: 0; }
+    .receipt-link.cancel-proof { color: #b91c1c; }
+    .btn-cancel-confirm { flex: 2; padding: 14px; background: #dc2626; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .btn-net-verify { width: 100%; padding: 13px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -428,13 +436,14 @@ function refreshTopBadges() {
       var container = document.getElementById("cardsContainer");
       container.innerHTML = "";
       if (items.length === 0) {
-        container.innerHTML = "<div class='empty'><h3>Purchases Caught Up</h3><p>Every LLC purchase is verified and categorized for Schedule C.</p></div>";
+        container.innerHTML = "<div class='empty'><h3>Purchases Caught Up</h3><p>Every LLC purchase and cancellation is reconciled for Schedule C.</p></div>";
         return;
       }
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
+        var isCancel = it.status === "Needs Cancel Confirm";
         var card = document.createElement("div");
-        card.className = "card";
+        card.className = isCancel ? "card cancel-card" : "card";
         card.id = "card-" + it.id;
 
         var cardOpts = "";
@@ -447,15 +456,64 @@ function refreshTopBadges() {
           var sel = (CATEGORIES[c] === it.category) ? " selected" : "";
           catOpts += "<option value=\"" + escapeAttr(CATEGORIES[c]) + "\"" + sel + ">" + escapeHtml(CATEGORIES[c]) + "</option>";
         }
-        var dupHtml = it.duplicateAlert
-          ? "<div class='dup-banner'>Duplicate Alert: " + escapeHtml(it.duplicateAlert) + "</div>"
-          : "";
-        var receiptHtml = it.receiptUrl
-          ? "<a class='receipt-link' href='" + escapeAttr(it.receiptUrl) + "' target='_blank' rel='noopener'>View Archived Receipt in Drive &rarr;</a>"
+
+        var topBannerHtml = "";
+        if (isCancel) {
+          var tagLbl = it.suggestedNetCost
+            ? ("Partial Refund on Verified Item &bull; " + escapeHtml(it.id))
+            : ("Verified Schedule C Reversal &bull; " + escapeHtml(it.id));
+          var cancelMsg = it.duplicateAlert || "Confirmed cancellation/refund matched a Verified Schedule C expense.";
+          topBannerHtml =
+            "<div class='cancel-banner'>" +
+              "<div class='cancel-tag'>" + tagLbl + "</div>" +
+              "<div>" + escapeHtml(cancelMsg) + "</div>" +
+            "</div>";
+        } else if (it.duplicateAlert) {
+          topBannerHtml = "<div class='dup-banner'>Duplicate Alert: " + escapeHtml(it.duplicateAlert) + "</div>";
+        }
+
+        var receiptLinks = [];
+        if (it.receiptUrl) {
+          var origLbl = "View Archived Receipt in Drive &rarr;";
+          if (isCancel) {
+            origLbl = (it.cancelReceiptUrl && it.cancelReceiptUrl === it.receiptUrl)
+              ? "Cancellation Proof PDF &rarr;"
+              : "Original Receipt &rarr;";
+          }
+          receiptLinks.push(
+            "<a class='receipt-link' href='" + escapeAttr(it.receiptUrl) + "' target='_blank' rel='noopener'>" + origLbl + "</a>"
+          );
+        }
+        if (isCancel && it.cancelReceiptUrl && it.cancelReceiptUrl !== it.receiptUrl) {
+          receiptLinks.push(
+            "<a class='receipt-link cancel-proof' href='" + escapeAttr(it.cancelReceiptUrl) + "' target='_blank' rel='noopener'>Cancellation Proof PDF &rarr;</a>"
+          );
+        }
+        var receiptHtml = receiptLinks.length > 0
+          ? ("<div class='receipt-row'>" + receiptLinks.join("") + "</div>")
           : "";
 
+        var actionBtnsHtml = "";
+        if (isCancel) {
+          var netBtnHtml = it.suggestedNetCost
+            ? ("<button class='btn-net-verify' onclick=\"applyPartialNetCost('" + escapeAttr(it.id) + "', '" + escapeAttr(it.suggestedNetCost) + "')\">Apply Partial Refund (Net USD " + escapeHtml(it.suggestedNetCost) + ") &amp; Re-Verify</button>")
+            : "";
+          actionBtnsHtml =
+            netBtnHtml +
+            "<div class='card-btns'>" +
+              "<button class='btn-cancel-confirm' onclick=\"submitCard('" + escapeAttr(it.id) + "', 'confirmCancel')\">Confirm Cancelled</button>" +
+              "<button class='btn-ignore' onclick=\"submitCard('" + escapeAttr(it.id) + "', 'verify')\">Keep Verified</button>" +
+            "</div>";
+        } else {
+          actionBtnsHtml =
+            "<div class='card-btns'>" +
+              "<button class='btn-verify' onclick=\"submitCard('" + escapeAttr(it.id) + "', 'verify')\">Verify &amp; Save</button>" +
+              "<button class='btn-ignore' onclick=\"submitCard('" + escapeAttr(it.id) + "', 'ignore')\">Ignore</button>" +
+            "</div>";
+        }
+
         card.innerHTML =
-          dupHtml + receiptHtml +
+          topBannerHtml + receiptHtml +
           "<div class='field'><label>Vendor</label><input type='text' id='vendor-" + it.id + "' value=\"" + escapeAttr(it.vendor) + "\"></div>" +
           "<div class='row2'>" +
             "<div class='field'><label>Total Cost (USD)</label><input type='number' step='0.01' id='cost-" + it.id + "' value=\"" + escapeAttr(it.totalCost) + "\"></div>" +
@@ -469,10 +527,7 @@ function refreshTopBadges() {
           "<div class='field'><label>Product Description</label><input type='text' id='desc-" + it.id + "' value=\"" + escapeAttr(it.productDescription) + "\"></div>" +
           "<div class='field'><label>IRS Schedule C Category</label><select id='cat-" + it.id + "'>" + catOpts + "</select></div>" +
           "<div class='field'><label>Tax Notes / Business Purpose</label><textarea id='notes-" + it.id + "' placeholder='e.g. Aluminum stock for prototype assembly'>" + escapeHtml(it.taxNotes) + "</textarea></div>" +
-          "<div class='card-btns'>" +
-            "<button class='btn-verify' onclick=\"submitCard('" + it.id + "', 'verify')\">Verify &amp; Save</button>" +
-            "<button class='btn-ignore' onclick=\"submitCard('" + it.id + "', 'ignore')\">Ignore</button>" +
-          "</div>";
+          actionBtnsHtml;
         container.appendChild(card);
       }
     }
@@ -625,6 +680,14 @@ function refreshTopBadges() {
       });
     }
 
+    function applyPartialNetCost(id, netCost) {
+      var costEl = document.getElementById("cost-" + id);
+      if (costEl && netCost !== undefined && netCost !== "") {
+        costEl.value = String(netCost);
+      }
+      submitCard(id, "verify");
+    }
+
     function submitCard(id, action) {
       var payload = {
         id: id,
@@ -642,7 +705,13 @@ function refreshTopBadges() {
       var cardEl = document.getElementById("card-" + id);
       cardEl.style.opacity = "0.5";
       cardEl.style.pointerEvents = "none";
-      showStatus(action === "ignore" ? "Ignoring item..." : "Saving verified expense...");
+      var statusMsg = "Saving verified expense...";
+      if (action === "confirmCancel") {
+        statusMsg = "Confirming cancellation & updating Schedule C...";
+      } else if (action === "ignore") {
+        statusMsg = "Ignoring item...";
+      }
+      showStatus(statusMsg);
       callApi("verify", { payload: payload })
         .then(function(items) {
           showStatus("");
